@@ -5556,8 +5556,8 @@ if text == ("تحديث السورس") and DevTshake(msg) then
 send(msg.chat_id_,msg.id_,'☑┇تم التحديث')
 os.execute('rm -rf Tshake.lua')
 os.execute('rm -rf start.lua')
-download_to_file('https://raw.githubusercontent.com/ghost11886/lol/master/Tshake/Tshake.lua', 'Tshake.lua') 
-download_to_file('https://raw.githubusercontent.com/ghost11886/lol/master/Tshake/start.lua', 'start.lua') 
+download_to_file('https://raw.githubusercontent.com/ghost11886/Tshake/master/Tshake.lua', 'Tshake.lua') 
+download_to_file('https://raw.githubusercontent.com/ghost11886/Tshake/master/start.lua', 'start.lua') 
 dofile('Tshake.lua')  
 return false
 end
@@ -6620,8 +6620,8 @@ if text == "تحديث السورس 📥" then
 send(msg.chat_id_,msg.id_,'☑┇تم التحديث')
 os.execute('rm -rf Tshake.lua')
 os.execute('rm -rf start.lua')
-download_to_file('https://raw.githubusercontent.com/ghost11886/lol/master/Tshake/Tshake.lua', 'Tshake.lua') 
-download_to_file('https://raw.githubusercontent.com/ghost11886/lol/master/Tshake/start.lua', 'start.lua') 
+download_to_file('https://raw.githubusercontent.com/ghost11886/Tshake/master/Tshake.lua', 'Tshake.lua') 
+download_to_file('https://raw.githubusercontent.com/ghost11886/Tshake/master/start.lua', 'start.lua') 
 dofile('Tshake.lua')  
 return false
 end
