@@ -71,7 +71,7 @@ RunTshake:write([[
 cd $HOME/Tshake
 token="]]..database:get(Server_Tshake.."Token_Tshake")..[["
 rm -fr Tshake.lua
-wget "https://raw.githubusercontent.com/ghost11886/lol/master/Tshake/Tshake.lua"
+wget "https://raw.githubusercontent.com/ghost11886/Tshake/master/Tshake.lua"
 while(true) do
 rm -fr ../.telegram-cli
 ./tg -s ./Tshake.lua -p PROFILE --bot=$token
