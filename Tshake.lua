@@ -1386,22 +1386,22 @@ Reply_Status(msg,msg.sender_user_id_,"unlock","💢️┇تم فـتح جميع 
 return false
 end 
 --------------------------------------------------------------------------------------------------------------
-if text == "قفل الروابط" and Addictive(msg) then
+if text == "قفل الروابظ" and Addictive(msg) then
 database:set(bot_id.."Tshake:Lock:Link"..msg.chat_id_,"del")  
 Reply_Status(msg,msg.sender_user_id_,"lock","💢️┇تم قفـل الروابط")  
 return false
 end 
-if text == "قفل الروابط بالتقيد" and Addictive(msg) then
+if text == "قفل الروابظ بالتقيد" and Addictive(msg) then
 database:set(bot_id.."Tshake:Lock:Link"..msg.chat_id_,"ked")  
 Reply_Status(msg,msg.sender_user_id_,"lockkid","💢️┇تم قفـل الروابط")  
 return false
 end 
-if text == "قفل الروابط بالكتم" and Addictive(msg) then
+if text == "قفل الروابظ بالكتم" and Addictive(msg) then
 database:set(bot_id.."Tshake:Lock:Link"..msg.chat_id_,"ktm")  
 Reply_Status(msg,msg.sender_user_id_,"lockktm","💢️┇تم قفـل الروابط")  
 return false
 end 
-if text == "قفل الروابط بالطرد" and Addictive(msg) then
+if text == "قفل الروابظ بالطرد" and Addictive(msg) then
 database:set(bot_id.."Tshake:Lock:Link"..msg.chat_id_,"kick")  
 Reply_Status(msg,msg.sender_user_id_,"lockkick","💢️┇تم قفـل الروابط")  
 return false
