@@ -3656,18 +3656,19 @@ if msg.content_.photo_.sizes_[3] then
 photo_in_group = msg.content_.photo_.sizes_[3].photo_.persistent_id_
 end
 database:set(bot_id.."Tshake:Add:Rd:Manager:Photo"..test..msg.chat_id_, photo_in_group)  
+database:set(bot_id.."Tshake:Add:Rd:Manager:Photo:caption"..test..msg.chat_id_,(msg.content_.caption_ or ''))   
 end
 send(msg.chat_id_, msg.id_,"📌┇تم حفظ الرد بنجاح")
 return false  
 end  
 end
 if text == "اضف رد" and Owner(msg) then
-send(msg.chat_id_, msg.id_,"📫┇ارسل الكلمه التري تريد اضافتها")
+send(msg.chat_id_, msg.id_,"📫┇ارسل الكلمه التي تريد اضافتها")
 database:set(bot_id.."Tshake:Set:Manager:rd"..msg.sender_user_id_..":"..msg.chat_id_,true)
 return false 
 end
 if text == "حذف رد" and Owner(msg) then
-send(msg.chat_id_, msg.id_,"📫┇ارسل الكلمه التري تريد حذفها")
+send(msg.chat_id_, msg.id_,"📫┇ارسل الكلمه التي تريد حذفها")
 database:set(bot_id.."Tshake:Set:Manager:rd"..msg.sender_user_id_..":"..msg.chat_id_,"true2")
 return false 
 end
@@ -3713,6 +3714,7 @@ local photo = database:get(bot_id.."Tshake:Add:Rd:Manager:Photo"..text..msg.chat
 local video = database:get(bot_id.."Tshake:Add:Rd:Manager:Video"..text..msg.chat_id_)
 local document = database:get(bot_id.."Tshake:Add:Rd:Manager:File"..text..msg.chat_id_)
 local audio = database:get(bot_id.."Tshake:Add:Rd:Manager:Audio"..text..msg.chat_id_)
+local photo_caption = (database:get(bot_id.."Tshake:Add:Rd:Manager:Photo:caption"..text..msg.chat_id_) or '' )
 if Text then 
 tdcli_function({ID="GetUser",user_id_=msg.sender_user_id_},function(arg,data)
 local NumMsg = database:get(bot_id..'Tshake:messageUser'..msg.chat_id_..':'..msg.sender_user_id_) or 0
