@@ -44,6 +44,7 @@ print(serpent.block(value, {comment=false}))
 end 
 function dl_cb(t,s)
 end
+
 function DevTshake(msg)  
 local Taha_Sudo = false  
 for k,v in pairs(List_Sudos) do  
@@ -70,9 +71,17 @@ else
 return false  
 end  
 end
+function GroupCreactor(msg)
+local hash = database:sismember(bot_id.."Tshake:Group:Creactor"..msg.chat_id_, msg.sender_user_id_) 
+if hash or DevTshake(msg) or DevBot(msg) then 
+return true 
+else 
+return false 
+end 
+end
 function BasicConstructor(msg)
 local hash = database:sismember(bot_id.."Tshake:Basic:Constructor"..msg.chat_id_, msg.sender_user_id_) 
-if hash or DevTshake(msg) or DevBot(msg) then 
+if hash or DevTshake(msg) or DevBot(msg) or GroupCreactor(msg)  then 
 return true 
 else 
 return false 
@@ -80,7 +89,7 @@ end
 end
 function Constructor(msg)
 local hash = database:sismember(bot_id.."Tshake:Constructor"..msg.chat_id_, msg.sender_user_id_) 
-if hash or DevTshake(msg) or DevBot(msg) or BasicConstructor(msg) then    
+if hash or DevTshake(msg) or DevBot(msg) or GroupCreactor(msg) or  BasicConstructor(msg) then    
 return true    
 else    
 return false    
@@ -88,7 +97,7 @@ end
 end
 function Owner(msg)
 local hash = database:sismember(bot_id.."Tshake:Manager"..msg.chat_id_,msg.sender_user_id_)    
-if hash or DevTshake(msg) or DevBot(msg) or BasicConstructor(msg) or Constructor(msg) then    
+if hash or DevTshake(msg) or DevBot(msg) or GroupCreactor(msg) or  BasicConstructor(msg) or Constructor(msg) then    
 return true    
 else    
 return false    
@@ -96,7 +105,7 @@ end
 end
 function Addictive(msg)
 local hash = database:sismember(bot_id.."Tshake:Mod:User"..msg.chat_id_,msg.sender_user_id_)    
-if hash or DevTshake(msg) or DevBot(msg) or BasicConstructor(msg) or Constructor(msg) or Owner(msg) then    
+if hash or DevTshake(msg) or DevBot(msg) or GroupCreactor(msg) or  BasicConstructor(msg) or Constructor(msg) or Owner(msg) then    
 return true    
 else    
 return false    
@@ -104,7 +113,24 @@ end
 end
 function Vips(msg)
 local hash = database:sismember(bot_id.."Tshake:Special:User"..msg.chat_id_,msg.sender_user_id_) 
-if hash or DevTshake(msg) or DevBot(msg) or BasicConstructor(msg) or Constructor(msg) or Owner(msg) or Addictive(msg) then    
+if hash or DevTshake(msg) or DevBot(msg) or GroupCreactor(msg) or  BasicConstructor(msg) or Constructor(msg) or Owner(msg) or Addictive(msg) then    
+return true 
+else 
+return false 
+end 
+end
+
+function Setban(msg)
+local hash = database:sismember(bot_id..'Tshake:SET:BAN'..msg.chat_id_,msg.sender_user_id_) 
+if hash then    
+return true 
+else 
+return false 
+end 
+end
+function Setpromote(msg)
+local hash = database:sismember(bot_id..'Tshake:SET:PROMOTE'..msg.chat_id_,msg.sender_user_id_) 
+if hash then    
 return true 
 else 
 return false 
@@ -118,6 +144,8 @@ elseif tonumber(user_id) == tonumber(bot_id) then
 var = true  
 elseif database:sismember(bot_id.."Tshake:Sudo:User", user_id) then
 var = true  
+elseif database:sismember(bot_id.."Tshake:Group:Creactor"..chat_id, user_id) then
+var = true
 elseif database:sismember(bot_id.."Tshake:Basic:Constructor"..chat_id, user_id) then
 var = true
 elseif database:sismember(bot_id.."Tshake:Constructor"..chat_id, user_id) then
@@ -139,7 +167,9 @@ var = "المطور الاساسي"
 elseif tonumber(user_id) == tonumber(bot_id) then  
 var = "البوت"
 elseif database:sismember(bot_id.."Tshake:Sudo:User", user_id) then
-var = database:get(bot_id.."Tshake:Sudo:Rd"..chat_id) or "المطور"  
+var = database:get(bot_id.."Tshake:Sudo:Rd"..chat_id) or "المطور" 
+elseif database:sismember(bot_id.."Tshake:Group:Creactor"..chat_id, user_id) then
+var = database:get(bot_id.."Tshake:GroupCreactor:Rd"..chat_id) or "مالك المجموعة" 
 elseif database:sismember(bot_id.."Tshake:Basic:Constructor"..chat_id, user_id) then
 var = database:get(bot_id.."Tshake:BasicConstructor:Rd"..chat_id) or "المنشئ اساسي"
 elseif database:sismember(bot_id.."Tshake:Constructor"..chat_id, user_id) then
@@ -244,6 +274,11 @@ url = url.."&parse_mode=HTML"
 end 
 return s_api(url)  
 end
+local function SEendtext(chat_id, reply_to_message_id, text)
+local TextParseMode = {ID = "TextParseModeMarkdown"}
+tdcli_function ({ID = "SendMessage",chat_id_ = chat_id,reply_to_message_id_ = reply_to_message_id,disable_notification_ = 1,from_background_ = 1,reply_markup_ = nil,input_message_content_ = {ID = "InputMessageText",text_ = text,disable_web_page_preview_ = 1,clear_draft_ = 0,entities_ = {},parse_mode_ = TextParseMode,},}, dl_cb, nil)
+end
+
 function send_inline_key(chat_id,text,keyboard,inline,reply_id) 
 local response = {} 
 response.keyboard = keyboard 
@@ -403,6 +438,7 @@ local UserName = (data.username_ or "TSHAKETEAM")
 for Tshake in string.gmatch(data.first_name_, "[^%s]+") do
 data.first_name_ = Tshake
 end
+
 local NameUser = "🗣┇بواسطه - ["..data.first_name_.."](T.me/"..UserName..")"
 local NameUserr = "🗣┇العضو ~ ["..data.first_name_.."](T.me/"..UserName..")"
 if status == "lock" then
@@ -438,6 +474,67 @@ send(msg.chat_id_, msg.id_,"👤┇ الحساب محذوف يرجى استخد�
 end
 end,nil)   
 end -- end
+function getUserrrr(user_id, cb)
+tdcli_function ({
+ID = "GetUser",
+user_id_ = user_id
+}, cb, nil)
+end
+--         »»                 tsX000                         ««              --
+function tsX000(value,msg,text)
+if value == "lockkkkkk" then
+function keko333(extra,result,success)
+if result.first_name_ then
+if #result.first_name_ < 15 then 
+else
+for tshake_one in string.gmatch(result.first_name_, "[^%s]+") do
+result.first_name_ = tshake_one
+break
+end
+end
+end 
+info = '👤┇بواسطه ← ['..result.first_name_..'](t.me/'..(result.username_ or 'TSHAKETEAM')..')\n'..text
+send(msg.chat_id_, msg.id_,info)
+end
+getUserrrr(msg.sender_user_id_, keko333)
+end
+if value == "prore" then
+function get_tshakeX(tshakex1,tshakex2,tshakex3)
+local id_tshakex = tshakex2.sender_user_id_
+function keko333(extra,result,success)
+if result.first_name_ then
+if #result.first_name_ < 15 then 
+else
+for tshake_one in string.gmatch(result.first_name_, "[^%s]+") do
+result.first_name_ = tshake_one
+break
+end
+end
+end 
+info = '👤┇العضو ~⪼ ['..result.first_name_..'](t.me/'..(result.username_ or 'TSHAKETEAM')..')\n'..text
+send(msg.chat_id_, msg.id_,info)
+end
+getUserrrr(id_tshakex, keko333)
+end
+tdcli_function ({ID = "GetMessage",chat_id_ = msg.chat_id_,message_id_ = tonumber(msg.reply_to_message_id_)}, get_tshakeX, nil)
+end
+if value ~= "prore" and value~= "lockkkkkk"  then
+function keko333(extra,result,success)
+if result.first_name_ then
+if #result.first_name_ < 15 then 
+else
+for tshake_one in string.gmatch(result.first_name_, "[^%s]+") do
+result.first_name_ = tshake_one
+break
+end
+end
+end 
+info = '👤┇العضو ~⪼ ['..(result.first_name_ or value)..'](t.me/'..(result.username_ or 'TSHAKETEAM')..')\n'..text
+send(msg.chat_id_, msg.id_,info)
+end
+getUserrrr(value, keko333)
+end
+end -- end fun
 function Total_message(msgs)  
 local message = ''  
 if tonumber(msgs) < 100 then 
@@ -522,6 +619,10 @@ end;end
 if v.ASAS then
 for k,idASAS in pairs(v.ASAS) do
 database:sadd(bot_id.."Tshake:Basic:Constructor"..idg,idASAS)  
+end;end
+if v.AGCCC then
+for k,idAGCCC in pairs(v.AGCCC) do
+database:sadd(bot_id.."Tshake:Group:Creactor"..idg,idAGCCC)  
 end;end
 if v.linkgroup then
 if v.linkgroup ~= "" then
@@ -1896,7 +1997,7 @@ if text == ("مسح المطورين") and DevTshake(msg) then
 database:del(bot_id.."Tshake:Sudo:User")
 send(msg.chat_id_, msg.id_, "\n📮┇ تم مسح قائمة المطورين  ")
 end
-if text == "مسح المنشئين الاساسين" and DevBot(msg) then
+if text == "مسح المنشئين الاساسين" and GroupCreactor(msg) then
 database:del(bot_id.."Tshake:Basic:Constructor"..msg.chat_id_)
 texts = "✖┇ تم مسح المنشئين الاساسيين"
 send(msg.chat_id_, msg.id_, texts)
@@ -1960,7 +2061,7 @@ t = "✖┇لا يوجد مطورين"
 end
 send(msg.chat_id_, msg.id_, t)
 end
-if text == "المنشئين الاساسين" and DevBot(msg) then
+if text == "المنشئين الاساسين" and GroupCreactor(msg) then
 local list = database:smembers(bot_id.."Tshake:Basic:Constructor"..msg.chat_id_)
 t = "\n⛔┇قائمة المنشئين الاساسين \n┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ \n"
 for k,v in pairs(list) do
@@ -2218,7 +2319,69 @@ Reply_Status(msg,userid,"reply","💢┇تم تنزيله من المطورين"
 return false 
 end
 
-if text == ("رفع منشئ اساسي") and tonumber(msg.reply_to_message_id_) ~= 0 and DevBot(msg) then 
+if text == ("رفع مالك المجموعة") and tonumber(msg.reply_to_message_id_) ~= 0 and DevBot(msg) then 
+
+function Function_Tshake(extra, result, success)
+database:sadd(bot_id.."Tshake:Group:Creactor"..msg.chat_id_, result.sender_user_id_)
+Reply_Status(msg,result.sender_user_id_,"reply","💢┇تم ترقيته مالك المجموعة")  
+end
+tdcli_function ({ID = "GetMessage",chat_id_ = msg.chat_id_,message_id_ = tonumber(msg.reply_to_message_id_)}, Function_Tshake, nil)
+return false
+end
+if text and text:match("^رفع مالك المجموعة @(.*)$") and DevBot(msg) then 
+local username = text:match("^رفع مالك المجموعة @(.*)$")
+function Function_Tshake(extra, result, success)
+if result.id_ then
+if (result and result.type_ and result.type_.ID == "ChannelChatInfo") then
+send(msg.chat_id_,msg.id_,"💢┇عذرا عزيزي المستخدم هاذا معرف قناة يرجى استخدام الامر بصوره صحيحه !")   
+return false 
+end      
+database:sadd(bot_id.."Tshake:Group:Creactor"..msg.chat_id_, result.id_)
+Reply_Status(msg,result.id_,"reply","💢┇تم ترقيته مالك المجموعة")  
+else
+send(msg.chat_id_, msg.id_,"💢┇لا يوجد حساب بهاذا المعرف")
+end
+end
+tdcli_function ({ID = "SearchPublicChat",username_ = username}, Function_Tshake, nil)
+return false
+end
+if text and text:match("^رفع مالك المجموعة (%d+)$") and DevBot(msg) then 
+
+local userid = text:match("^رفع مالك المجموعة (%d+)$") 
+database:sadd(bot_id.."Tshake:Group:Creactor"..msg.chat_id_, userid)
+Reply_Status(msg,userid,"reply","💢┇تم ترقيته مالك المجموعة")  
+return false
+end
+if text == ("تنزيل مالك المجموعة") and tonumber(msg.reply_to_message_id_) ~= 0 and DevBot(msg) then 
+function Function_Tshake(extra, result, success)
+database:srem(bot_id.."Tshake:Group:Creactor"..msg.chat_id_, result.sender_user_id_)
+Reply_Status(msg,result.sender_user_id_,"reply","💢┇تم تنزيله من مالك المجموعة")  
+end
+tdcli_function ({ID = "GetMessage",chat_id_ = msg.chat_id_,message_id_ = tonumber(msg.reply_to_message_id_)}, Function_Tshake, nil)
+return false
+end
+if text and text:match("^تنزيل مالك المجموعة @(.*)$") and DevBot(msg) then 
+local username = text:match("^تنزيل مالك المجموعة @(.*)$")
+function Function_Tshake(extra, result, success)
+if result.id_ then
+database:srem(bot_id.."Tshake:Group:Creactor"..msg.chat_id_, result.id_)
+
+Reply_Status(msg,result.id_,"reply","💢┇تم تنزيله من مالك المجموعة")  
+else
+send(msg.chat_id_, msg.id_,"💢┇لا يوجد حساب بهاذا المعرف")
+end
+end
+tdcli_function ({ID = "SearchPublicChat",username_ = username}, Function_Tshake, nil)
+return false
+end
+if text and text:match("^تنزيل مالك المجموعة (%d+)$") and DevBot(msg) then 
+local userid = text:match("^تنزيل مالك المجموعة (%d+)$") 
+database:srem(bot_id.."Tshake:Group:Creactor"..msg.chat_id_, userid)
+Reply_Status(msg,userid,"reply","💢┇تم تنزيله من مالك المجموعة")  
+return false
+end
+
+if text == ("رفع منشئ اساسي") and tonumber(msg.reply_to_message_id_) ~= 0 and GroupCreactor(msg) then 
 
 function Function_Tshake(extra, result, success)
 database:sadd(bot_id.."Tshake:Basic:Constructor"..msg.chat_id_, result.sender_user_id_)
@@ -2227,7 +2390,7 @@ end
 tdcli_function ({ID = "GetMessage",chat_id_ = msg.chat_id_,message_id_ = tonumber(msg.reply_to_message_id_)}, Function_Tshake, nil)
 return false
 end
-if text and text:match("^رفع منشئ اساسي @(.*)$") and DevBot(msg) then 
+if text and text:match("^رفع منشئ اساسي @(.*)$") and GroupCreactor(msg) then 
 local username = text:match("^رفع منشئ اساسي @(.*)$")
 function Function_Tshake(extra, result, success)
 if result.id_ then
@@ -2244,14 +2407,14 @@ end
 tdcli_function ({ID = "SearchPublicChat",username_ = username}, Function_Tshake, nil)
 return false
 end
-if text and text:match("^رفع منشئ اساسي (%d+)$") and DevBot(msg) then 
+if text and text:match("^رفع منشئ اساسي (%d+)$") and GroupCreactor(msg) then 
 
 local userid = text:match("^رفع منشئ اساسي (%d+)$") 
 database:sadd(bot_id.."Tshake:Basic:Constructor"..msg.chat_id_, userid)
 Reply_Status(msg,userid,"reply","💢┇تم ترقيته منشئ اساسي")  
 return false
 end
-if text == ("تنزيل منشئ اساسي") and tonumber(msg.reply_to_message_id_) ~= 0 and DevBot(msg) then 
+if text == ("تنزيل منشئ اساسي") and tonumber(msg.reply_to_message_id_) ~= 0 and GroupCreactor(msg) then 
 function Function_Tshake(extra, result, success)
 database:srem(bot_id.."Tshake:Basic:Constructor"..msg.chat_id_, result.sender_user_id_)
 Reply_Status(msg,result.sender_user_id_,"reply","💢┇تم تنزيله من المنشئين")  
@@ -2259,7 +2422,7 @@ end
 tdcli_function ({ID = "GetMessage",chat_id_ = msg.chat_id_,message_id_ = tonumber(msg.reply_to_message_id_)}, Function_Tshake, nil)
 return false
 end
-if text and text:match("^تنزيل منشئ اساسي @(.*)$") and DevBot(msg) then 
+if text and text:match("^تنزيل منشئ اساسي @(.*)$") and GroupCreactor(msg) then 
 local username = text:match("^تنزيل منشئ اساسي @(.*)$")
 function Function_Tshake(extra, result, success)
 if result.id_ then
@@ -2273,7 +2436,7 @@ end
 tdcli_function ({ID = "SearchPublicChat",username_ = username}, Function_Tshake, nil)
 return false
 end
-if text and text:match("^تنزيل منشئ اساسي (%d+)$") and DevBot(msg) then 
+if text and text:match("^تنزيل منشئ اساسي (%d+)$") and GroupCreactor(msg) then 
 local userid = text:match("^تنزيل منشئ اساسي (%d+)$") 
 database:srem(bot_id.."Tshake:Basic:Constructor"..msg.chat_id_, userid)
 Reply_Status(msg,userid,"reply","💢┇تم تنزيله من المنشئين")  
@@ -2397,7 +2560,7 @@ return false
 end
 
 if text == ("رفع ادمن") and tonumber(msg.reply_to_message_id_) ~= 0 and Owner(msg) then 
-if not Constructor(msg) and database:get(bot_id.."Add:Group:Cheking"..msg.chat_id_) then 
+if not Constructor(msg) and not Setpromote(msg) and database:get(bot_id.."Add:Group:Cheking"..msg.chat_id_) then 
 send(msg.chat_id_, msg.id_,'✖┇لا تستطيع رفع احد وذالك لان تم تعطيل الرفع من قبل المنشئين')
 return false
 end
@@ -2411,7 +2574,7 @@ end
 if text and text:match("^رفع ادمن @(.*)$") and Owner(msg) then 
 
 local username = text:match("^رفع ادمن @(.*)$")
-if not Constructor(msg) and database:get(bot_id.."Add:Group:Cheking"..msg.chat_id_) then 
+if not Constructor(msg) and not Setpromote(msg) and database:get(bot_id.."Add:Group:Cheking"..msg.chat_id_) then 
 send(msg.chat_id_, msg.id_,'✖┇لا تستطيع رفع احد وذالك لان تم تعطيل الرفع من قبل المنشئين')
 return false
 end
@@ -2433,7 +2596,7 @@ end
 if text and text:match("^رفع ادمن (%d+)$") and Owner(msg) then 
 
 local userid = text:match("^رفع ادمن (%d+)$")
-if not Constructor(msg) and database:get(bot_id.."Add:Group:Cheking"..msg.chat_id_) then 
+if not Constructor(msg) and not Setpromote(msg) and database:get(bot_id.."Add:Group:Cheking"..msg.chat_id_) then 
 send(msg.chat_id_, msg.id_,'✖┇لا تستطيع رفع احد وذالك لان تم تعطيل الرفع من قبل المنشئين')
 return false
 end
@@ -2474,7 +2637,7 @@ end
 
 if text == ("رفع مميز") and tonumber(msg.reply_to_message_id_) ~= 0 and Addictive(msg) then 
 
-if not Constructor(msg) and database:get(bot_id.."Add:Group:Cheking"..msg.chat_id_) then 
+if not Constructor(msg) and not Setpromote(msg) and database:get(bot_id.."Add:Group:Cheking"..msg.chat_id_) then 
 send(msg.chat_id_, msg.id_,'✖┇لا تستطيع رفع احد وذالك لان تم تعطيل الرفع من قبل المنشئين')
 return false
 end
@@ -2488,7 +2651,7 @@ end
 if text and text:match("^رفع مميز @(.*)$") and Addictive(msg) then 
 
 local username = text:match("^رفع مميز @(.*)$") 
-if not Constructor(msg) and database:get(bot_id.."Add:Group:Cheking"..msg.chat_id_) then 
+if not Constructor(msg) and not Setpromote(msg) and database:get(bot_id.."Add:Group:Cheking"..msg.chat_id_) then 
 send(msg.chat_id_, msg.id_,'✖┇لا تستطيع رفع احد وذالك لان تم تعطيل الرفع من قبل المنشئين')
 return false
 end
@@ -2511,7 +2674,7 @@ end
 if text and text:match("^رفع مميز (%d+)$") and Addictive(msg) then 
 
 local userid = text:match("^رفع مميز (%d+)$")
-if not Constructor(msg) and database:get(bot_id.."Add:Group:Cheking"..msg.chat_id_) then 
+if not Constructor(msg) and not Setpromote(msg) and database:get(bot_id.."Add:Group:Cheking"..msg.chat_id_) then 
 send(msg.chat_id_, msg.id_,'✖┇لا تستطيع رفع احد وذالك لان تم تعطيل الرفع من قبل المنشئين')
 return false
 end
@@ -2666,7 +2829,7 @@ end
 end
 
 if text == ("حظر") and msg.reply_to_message_id_ ~= 0 and Addictive(msg) then
-if not Constructor(msg) and database:get(bot_id.."Ban:Cheking"..msg.chat_id_) then 
+if not Constructor(msg) and not Setban(msg) and database:get(bot_id.."Ban:Cheking"..msg.chat_id_) then 
 send(msg.chat_id_, msg.id_,'💢┇لقد تم تعطيل الحظر و الطرد من قبل المنشئين')
 return false
 end
@@ -2695,7 +2858,7 @@ end
 
 if text and text:match("^حظر @(.*)$") and Addictive(msg) then
 local username = text:match("^حظر @(.*)$")
-if not Constructor(msg) and database:get(bot_id.."Ban:Cheking"..msg.chat_id_) then 
+if not Constructor(msg) and not Setban(msg) and database:get(bot_id.."Ban:Cheking"..msg.chat_id_) then 
 send(msg.chat_id_, msg.id_,'💢┇لقد تم تعطيل الحظر و الطرد من قبل المنشئين')
 return false
 end
@@ -2732,7 +2895,7 @@ end
 
 if text and text:match("^حظر (%d+)$") and Addictive(msg) then
 local userid = text:match("^حظر (%d+)$") 
-if not Constructor(msg) and database:get(bot_id.."Ban:Cheking"..msg.chat_id_) then 
+if not Constructor(msg) and not Setban(msg) and database:get(bot_id.."Ban:Cheking"..msg.chat_id_) then 
 send(msg.chat_id_, msg.id_,'💢┇لقد تم تعطيل الحظر و الطرد من قبل المنشئين')
 return false
 end
@@ -3023,7 +3186,7 @@ Reply_Status(msg,userid,"reply","💢┇تم الغاء تقييده")
 return false
 end
 if text == ("طرد") and msg.reply_to_message_id_ ~=0 and Addictive(msg) then
-if not Constructor(msg) and database:get(bot_id.."Ban:Cheking"..msg.chat_id_) then 
+if not Constructor(msg) and not Setban(msg) and database:get(bot_id.."Ban:Cheking"..msg.chat_id_) then 
 send(msg.chat_id_, msg.id_,'💢┇لقد تم تعطيل الحظر و الطرد من قبل المنشئين')
 return false
 end
@@ -3050,7 +3213,7 @@ return false
 end  
 if text and text:match("^طرد @(.*)$") and Addictive(msg) then 
 local username = text:match("^طرد @(.*)$")
-if not Constructor(msg) and database:get(bot_id.."Ban:Cheking"..msg.chat_id_) then 
+if not Constructor(msg) and not Setban(msg) and database:get(bot_id.."Ban:Cheking"..msg.chat_id_) then 
 send(msg.chat_id_, msg.id_,'💢┇لقد تم تعطيل الحظر و الطرد من قبل المنشئين')
 return false
 end
@@ -3086,7 +3249,7 @@ end
 
 if text and text:match("^طرد (%d+)$") and Addictive(msg) then 
 local userid = text:match("^طرد (%d+)$") 
-if not Constructor(msg) and database:get(bot_id.."Ban:Cheking"..msg.chat_id_) then 
+if not Constructor(msg) and not Setban(msg) and database:get(bot_id.."Ban:Cheking"..msg.chat_id_) then 
 send(msg.chat_id_, msg.id_,'💢┇لقد تم تعطيل الحظر و الطرد من قبل المنشئين')
 return false
 end
@@ -3107,6 +3270,38 @@ Reply_Status(msg,userid,"reply","💢┇تم طرده من هنا")
 end,nil)   
 end
 return false
+end
+
+if text == ("منح الحظر") and msg.reply_to_message_id_ ~= 0 and Constructor(msg) then
+function by_reply(extra, result, success)
+tsX000("prore",msg,"☑┇تم منحه صلاحية الحظر")
+database:sadd(bot_id..'Tshake:SET:BAN'..msg.chat_id_, result.sender_user_id_)
+end
+tdcli_function ({ID = "GetMessage",chat_id_ = msg.chat_id_,message_id_ = tonumber(msg.reply_to_message_id_)}, by_reply, nil)
+end
+
+if text == ("الغاء منح الحظر") and msg.reply_to_message_id_ ~= 0 and Constructor(msg) then
+function by_reply(extra, result, success)
+tsX000("prore",msg,"☑┇تم الغاء منحه صلاحية الحظر")
+database:srem(bot_id..'Tshake:SET:BAN'..msg.chat_id_, result.sender_user_id_)
+end
+tdcli_function ({ID = "GetMessage",chat_id_ = msg.chat_id_,message_id_ = tonumber(msg.reply_to_message_id_)}, by_reply, nil)
+end
+
+if text == ("منح الرفع") and msg.reply_to_message_id_ ~= 0 and Constructor(msg) then
+function by_reply(extra, result, success)
+tsX000("prore",msg,"☑┇تم منحه صلاحية الرفع")
+database:sadd(bot_id..'Tshake:SET:PROMOTE'..msg.chat_id_, result.sender_user_id_)
+end
+tdcli_function ({ID = "GetMessage",chat_id_ = msg.chat_id_,message_id_ = tonumber(msg.reply_to_message_id_)}, by_reply, nil)
+end
+
+if text == ("الغاء منح الرفع") and msg.reply_to_message_id_ ~= 0 and Constructor(msg) then
+function by_reply(extra, result, success)
+tsX000("prore",msg,"☑┇تم الغاء منحه صلاحية الرفع")
+database:srem(bot_id..'Tshake:SET:PROMOTE'..msg.chat_id_, result.sender_user_id_)
+end
+tdcli_function ({ID = "GetMessage",chat_id_ = msg.chat_id_,message_id_ = tonumber(msg.reply_to_message_id_)}, by_reply, nil)
 end
 
 if text == "تعطيل الطرد" or text == "تعطيل الحظر" then
@@ -3285,7 +3480,123 @@ database:srem(bot_id.."Tshake:List:Filter"..msg.chat_id_,v)
 end  
 send(msg.chat_id_, msg.id_,"☑┇تم مسح قائمه المنع")  
 end
+if text == 'منع' and tonumber(msg.reply_to_message_id_) > 0 and Owner(msg) then 
+function cb(a,b,c) 
+textt = '📮┇ تم منع '
+if b.content_.sticker_ then
+local idsticker = b.content_.sticker_.set_id_
+database:sadd(bot_id.."Tshake:filtersteckr"..msg.chat_id_,idsticker)
+text = 'الملصق'
+SEendtext(msg.chat_id_, msg.id_,textt..'( '..text..' ) بنجاح لن يتم ارسالها مجددا')  
+return false
+end
+if b.content_.ID == "MessagePhoto" then
+local photo = b.content_.photo_.id_
+database:sadd(bot_id.."Tshake:filterphoto"..msg.chat_id_,photo)
+text = 'الصوره'
+SEendtext(msg.chat_id_, msg.id_,textt..'( '..text..' ) بنجاح لن يتم ارسالها مجددا')  
+return false
+end
+if b.content_.animation_.animation_ then
+local idanimation = b.content_.animation_.animation_.persistent_id_
+database:sadd(bot_id.."Tshake:filteranimation"..msg.chat_id_,idanimation)
+text = 'المتحركه'
+SEendtext(msg.chat_id_, msg.id_,textt..'( '..text..' ) بنجاح لن يتم ارسالها مجددا')  
+return false
+end
+end
+tdcli_function ({ID = "GetMessage",chat_id_ = msg.chat_id_,message_id_ = tonumber(msg.reply_to_message_id_)}, cb, nil)
+end
+if text == 'الغاء منع' and tonumber(msg.reply_to_message_id_) > 0 and Owner(msg) then 
+function cb(a,b,c) 
+textt = '📮┇ تم الغاء منع '
+if b.content_.sticker_ then
+local idsticker = b.content_.sticker_.set_id_
+database:srem(bot_id.."Tshake:filtersteckr"..msg.chat_id_,idsticker)
+text = 'الملصق'
+SEendtext(msg.chat_id_, msg.id_,textt..'( '..text..' ) بنجاح يمكنهم الارسال الان')  
+return false
+end
+if b.content_.ID == "MessagePhoto" then
+local photo = b.content_.photo_.id_
+database:srem(bot_id.."Tshake:filterphoto"..msg.chat_id_,photo)
+text = 'الصوره'
+SEendtext(msg.chat_id_, msg.id_,textt..'( '..text..' ) بنجاح يمكنهم الارسال الان')  
+return false
+end
+if b.content_.animation_.animation_ then
+local idanimation = b.content_.animation_.animation_.persistent_id_
+database:srem(bot_id.."Tshake:filteranimation"..msg.chat_id_,idanimation)
+text = 'المتحركه'
+SEendtext(msg.chat_id_, msg.id_,textt..'( '..text..' ) بنجاح يمكنهم الارسال الان')  
+return false
+end
+end
+tdcli_function ({ID = "GetMessage",chat_id_ = msg.chat_id_,message_id_ = tonumber(msg.reply_to_message_id_)}, cb, nil)
+end
+if text == 'مسح قائمه منع المتحركات' and Owner(msg) then 
+database:del(bot_id.."Tshake:filteranimation"..msg.chat_id_)
+SEendtext(msg.chat_id_, msg.id_,'🔖┇ تم مسح قائمه منع المتحركات')  
+end
+if text == 'مسح قائمه منع الصور' and Owner(msg) then 
+database:del(bot_id.."Tshake:filterphoto"..msg.chat_id_)
+SEendtext(msg.chat_id_, msg.id_,'🔖┇ تم مسح قائمه منع الصور')  
+end
+if text == 'مسح قائمه منع الملصقات' and Owner(msg) then 
+database:del(bot_id.."Tshake:filtersteckr"..msg.chat_id_)
+SEendtext(msg.chat_id_, msg.id_,'🔖┇ تم مسح قائمه منع الملصقات')  
+end
+if msg.content_.ID == 'MessageSticker' and not Owner(msg) then 
+local filter = database:smembers(bot_id.."Tshake:filtersteckr"..msg.chat_id_)
+for k,v in pairs(filter) do
+if v == msg.content_.sticker_.set_id_ then
 
+tdcli_function ({ID = "GetUser",user_id_ = msg.sender_user_id_},function(arg,data)
+if data.username_ ~= false then
+send(msg.chat_id_,0,"⚠┇عذرا يا » {[(@"..data.username_..")]}\n📛┇ الملصق الذي ارسلته تم منعه من المجموعه \n" , 'html') 
+else
+send(msg.chat_id_,0,"⚠┇عذرا يا » {["..data.first_name_.."](T.ME/TSHAKETEAM)}\n📛┇ الملصق الذي ارسلته تم منعه من المجموعه \n" ,'md') 
+end
+end,nil)
+DeleteMessage(msg.chat_id_,{[0] = msg.id_})       
+return false   
+end
+end
+end
+------------------------------------------------------------------------
+if msg.content_.ID == 'MessagePhoto' and not Owner(msg) then 
+local filter = database:smembers(bot_id.."Tshake:filterphoto"..msg.chat_id_)
+for k,v in pairs(filter) do
+if v == msg.content_.photo_.id_ then
+tdcli_function ({ID = "GetUser",user_id_ = msg.sender_user_id_},function(arg,data)
+if data.username_ ~= false then
+send(msg.chat_id_,0,"⚠┇عذرا يا » { [(@"..data.username_..")]}\n📛┇ الصوره التي ارسلتها تم منعها من المجموعه \n" , 'html') 
+else
+send(msg.chat_id_,0,"⚠┇عذرا يا » {["..data.first_name_.."](T.ME/TSHAKETEAM)}\n📛┇ الصوره التي ارسلتها تم منعها من المجموعه \n" ,'md') 
+end
+end,nil)
+DeleteMessage(msg.chat_id_,{[0] = msg.id_})       
+return false   
+end
+end
+end
+------------------------------------------------------------------------
+if msg.content_.ID == 'MessageAnimation' and not Owner(msg) then 
+local filter = database:smembers(bot_id.."Tshake:filteranimation"..msg.chat_id_)
+for k,v in pairs(filter) do
+if v == msg.content_.animation_.animation_.persistent_id_ then
+tdcli_function ({ID = "GetUser",user_id_ = msg.sender_user_id_},function(arg,data)
+if data.username_ ~= false then
+send(msg.chat_id_,0,"⚠┇عذرا يا » { [(@"..data.username_..")]}\n📛┇ المتحركه التي ارسلتها تم منعها من المجموعه \n", 'html') 
+else
+send(msg.chat_id_,0,"⚠┇عذرا يا » {["..data.first_name_.."](T.ME/TSHAKETEAM)}\n📛┇ المتحركه التي ارسلتها تم منعها من المجموعه \n" , 'md') 
+end
+end,nil)
+DeleteMessage(msg.chat_id_,{[0] = msg.id_})       
+return false   
+end
+end
+end
 if text == "قائمه المنع" and Addictive(msg) then   
 local list = database:smembers(bot_id.."Tshake:List:Filter"..msg.chat_id_)  
 t = "\n⛔┇قائمة المنع \n┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ \n"
@@ -4006,6 +4317,12 @@ database:srem(bot_id.."Tshake:Manager"..msg.chat_id_, result.sender_user_id_)
 database:srem(bot_id.."Tshake:Mod:User"..msg.chat_id_, result.sender_user_id_)
 database:srem(bot_id.."Tshake:Special:User"..msg.chat_id_, result.sender_user_id_)
 elseif database:sismember(bot_id.."Tshake:Sudo:User",msg.sender_user_id_) then
+database:srem(bot_id.."Tshake:Mod:User"..msg.chat_id_, result.sender_user_id_)
+database:srem(bot_id.."Tshake:Special:User"..msg.chat_id_, result.sender_user_id_)
+database:srem(bot_id.."Tshake:Manager"..msg.chat_id_, result.sender_user_id_)
+database:srem(bot_id.."Tshake:Constructor"..msg.chat_id_, result.sender_user_id_)
+database:srem(bot_id.."Tshake:Basic:Constructor"..msg.chat_id_,result.sender_user_id_)
+elseif database:sismember(bot_id.."Tshake:Group:Creactor"..msg.chat_id_, msg.sender_user_id_) then
 database:srem(bot_id.."Tshake:Mod:User"..msg.chat_id_, result.sender_user_id_)
 database:srem(bot_id.."Tshake:Special:User"..msg.chat_id_, result.sender_user_id_)
 database:srem(bot_id.."Tshake:Manager"..msg.chat_id_, result.sender_user_id_)
@@ -5318,6 +5635,1332 @@ send(msg.chat_id_, msg.id_,"🔰┇اسرع واحد يكمل المثل ~ {"..n
 return false
 end
 end
+
+if database:get(bot_id.."Tshak:skrafa:name" .. msg.chat_id_ .. "" .. msg.sender_user_id_) then   
+if text and text:match("^الغاء$") then 
+send(msg.chat_id_, msg.id_,'💥¦تم الغاء امر الزخرفه')
+database:del(bot_id.."Tshak:skrafa:name" .. msg.chat_id_ .. "" .. msg.sender_user_id_)     
+return false
+end
+if text then
+if string.len(text) > 20 then
+send(msg.chat_id_, msg.id_,'📮¦لا يمكن زخرفة اكثر من 20 حرف') 
+database:del(bot_id.."Tshak:skrafa:name" .. msg.chat_id_ .. "" .. msg.sender_user_id_)     
+return false
+end
+local zhrf1 = text:gsub('ض', 'ضِٰـِۢ')
+zhrf1 = zhrf1:gsub('ص', 'صِٰـِۢ')
+zhrf1 = zhrf1:gsub('ث', 'ثِٰـِۢ')
+zhrf1 = zhrf1:gsub('ق', 'قِٰـِۢ')
+zhrf1 = zhrf1:gsub('ف', 'فِٰ͒ـِۢ')
+zhrf1 = zhrf1:gsub('غ', 'غِٰـِۢ')
+zhrf1 = zhrf1:gsub('ع', 'عِٰـِۢ')
+zhrf1 = zhrf1:gsub('خ', 'خِٰ̐ـِۢ')
+zhrf1 = zhrf1:gsub('ح', 'حِٰـِۢ')
+zhrf1 = zhrf1:gsub('ج', 'جِٰـِۢ')
+zhrf1 = zhrf1:gsub('ش', 'شِٰـِۢ')
+zhrf1 = zhrf1:gsub('س', 'سِٰـِۢ')
+zhrf1 = zhrf1:gsub('ي', 'يِٰـِۢ')
+zhrf1 = zhrf1:gsub('ب', 'بِٰـِۢ')
+zhrf1 = zhrf1:gsub('ل', 'لِٰـِۢ')
+zhrf1 = zhrf1:gsub('ا', 'آ')
+zhrf1 = zhrf1:gsub('ت', 'تِٰـِۢ')
+zhrf1 = zhrf1:gsub('ن', 'نِٰـِۢ')
+zhrf1 = zhrf1:gsub('م', 'مِٰـِۢ')
+zhrf1 = zhrf1:gsub('ك', 'ڪِٰـِۢ')
+zhrf1 = zhrf1:gsub('ط', 'طِٰـِۢ')
+zhrf1 = zhrf1:gsub('ظ', 'ظِٰـِۢ')
+zhrf1 = zhrf1:gsub('ء', 'ء')
+zhrf1 = zhrf1:gsub('ؤ', 'ؤ')
+zhrf1 = zhrf1:gsub('ر', 'ر')
+zhrf1 = zhrf1:gsub('ى', 'ى')
+zhrf1 = zhrf1:gsub('ز', 'ز')
+zhrf1 = zhrf1:gsub('و', 'ﯛ̲୭')
+zhrf1 = zhrf1:gsub("ه", "ۿۿہ")
+zhrf1 = zhrf1:gsub('a','Ꭿ')
+zhrf1 = zhrf1:gsub('A','Ꭿ')
+zhrf1 = zhrf1:gsub("b","Ᏸ")
+zhrf1 = zhrf1:gsub("B","Ᏸ")
+zhrf1 = zhrf1:gsub("c","Ꮸ")
+zhrf1 = zhrf1:gsub("C","Ꮸ")
+zhrf1 = zhrf1:gsub("d","Ꮷ")
+zhrf1 = zhrf1:gsub("D","Ꮷ")
+zhrf1 = zhrf1:gsub("e","Ꮛ")
+zhrf1 = zhrf1:gsub("E","Ꮛ")
+zhrf1 = zhrf1:gsub("f","Ꭶ")
+zhrf1 = zhrf1:gsub("F","Ꭶ")
+zhrf1 = zhrf1:gsub("g","Ᏻ")
+zhrf1 = zhrf1:gsub("G","Ᏻ")
+zhrf1 = zhrf1:gsub("h","Ᏺ")
+zhrf1 = zhrf1:gsub("H","Ᏺ")
+zhrf1 = zhrf1:gsub("i","Ꭸ")
+zhrf1 = zhrf1:gsub("I","Ꭸ")
+zhrf1 = zhrf1:gsub("j","Ꮰ")
+zhrf1 = zhrf1:gsub("J","Ꮰ")
+zhrf1 = zhrf1:gsub("k","Ꮵ")
+zhrf1 = zhrf1:gsub("K","Ꮵ")
+zhrf1 = zhrf1:gsub("l","Ꮭ")
+zhrf1 = zhrf1:gsub("L","Ꮭ")
+zhrf1 = zhrf1:gsub("m","ᗰ")
+zhrf1 = zhrf1:gsub("M","ᗰ")
+zhrf1 = zhrf1:gsub("n","Ꮑ")
+zhrf1 = zhrf1:gsub("N","Ꮑ")
+zhrf1 = zhrf1:gsub("o","Ꭷ")
+zhrf1 = zhrf1:gsub("O","Ꭷ")
+zhrf1 = zhrf1:gsub("p","Ꭾ")
+zhrf1 = zhrf1:gsub("P","Ꭾ")
+zhrf1 = zhrf1:gsub("q","Ꮕ")
+zhrf1 = zhrf1:gsub("Q","Ꮕ")
+zhrf1 = zhrf1:gsub("r","ᖇ")
+zhrf1 = zhrf1:gsub("R","ᖇ")
+zhrf1 = zhrf1:gsub("s","Ꮥ")
+zhrf1 = zhrf1:gsub("S","Ꮥ")
+zhrf1 = zhrf1:gsub("t","Ꮱ")
+zhrf1 = zhrf1:gsub("T","Ꮱ")
+zhrf1 = zhrf1:gsub("u","Ꮼ")
+zhrf1 = zhrf1:gsub("U","Ꮼ")
+zhrf1 = zhrf1:gsub("v","Ꮙ")
+zhrf1 = zhrf1:gsub("V","Ꮙ")
+zhrf1 = zhrf1:gsub("w","Ꮗ")
+zhrf1 = zhrf1:gsub("W","Ꮗ")
+zhrf1 = zhrf1:gsub("x","Ꮂ")
+zhrf1 = zhrf1:gsub("X","Ꮂ")
+zhrf1 = zhrf1:gsub("y","Ꮍ")
+zhrf1 = zhrf1:gsub("Y","Ꮍ")
+zhrf1 = zhrf1:gsub("z","ᔓ")
+zhrf1 = zhrf1:gsub("Z","ᔓ")
+
+local zhrf2 = text:gsub('ض', 'ضَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ص', 'صَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ث', 'ثَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ق', 'قَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ف', 'فَٰ͒ـُـٰٓ')
+zhrf2 = zhrf2:gsub('غ', 'غَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ع', 'عَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('خ', 'خَٰ̐ـُـٰٓ')
+zhrf2 = zhrf2:gsub('ح', 'حَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ج', 'جَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ش', 'شَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('س', 'سَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ي', 'يَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ب', 'بَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ل', 'لَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ا', 'آ')
+zhrf2 = zhrf2:gsub('ت', 'تَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ن', 'نَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('م', 'مَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ك', 'ڪَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ط', 'طَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ظ', 'ظَٰـُـٰٓ')
+zhrf2 = zhrf2:gsub('ء', 'ء')
+zhrf2 = zhrf2:gsub('ؤ', 'ؤ')
+zhrf2 = zhrf2:gsub('ر', 'ر')
+zhrf2 = zhrf2:gsub('ى', 'ى')
+zhrf2 = zhrf2:gsub('ز', 'ز')
+zhrf2 = zhrf2:gsub('و', 'ﯛ̲୭')
+zhrf2 = zhrf2:gsub("ه", "ۿۿہ")
+zhrf2 = zhrf2:gsub('a', 'Á')
+zhrf2 = zhrf2:gsub('b', 'ß')
+zhrf2 = zhrf2:gsub('c', 'Č')
+zhrf2 = zhrf2:gsub('d', 'Ď')
+zhrf2 = zhrf2:gsub('e', 'Ĕ')
+zhrf2 = zhrf2:gsub('f', 'Ŧ')
+zhrf2 = zhrf2:gsub('g', 'Ğ')
+zhrf2 = zhrf2:gsub('h', 'Ĥ')
+zhrf2 = zhrf2:gsub('i', 'Ĩ')
+zhrf2 = zhrf2:gsub('j', 'Ĵ')
+zhrf2 = zhrf2:gsub('k', 'Ķ')
+zhrf2 = zhrf2:gsub('l', 'Ĺ')
+zhrf2 = zhrf2:gsub('m', 'M')
+zhrf2 = zhrf2:gsub('n', 'Ń')
+zhrf2 = zhrf2:gsub('o', 'Ő')
+zhrf2 = zhrf2:gsub('p', 'P')
+zhrf2 = zhrf2:gsub('q', 'Q')
+zhrf2 = zhrf2:gsub('r', 'Ŕ')
+zhrf2 = zhrf2:gsub('s', 'Ś')
+zhrf2 = zhrf2:gsub('t', 'Ť')
+zhrf2 = zhrf2:gsub('u', 'Ú')
+zhrf2 = zhrf2:gsub('v', 'V')
+zhrf2 = zhrf2:gsub('w', 'Ŵ')
+zhrf2 = zhrf2:gsub('x', 'Ж')
+zhrf2 = zhrf2:gsub('y', 'Ŷ')
+zhrf2 = zhrf2:gsub('z', 'Ź') 
+
+
+local zhrf3 = text:gsub('ض', 'ض')
+zhrf3 = zhrf3:gsub('ص', 'ص')
+zhrf3 = zhrf3:gsub('ث', 'ثہ')
+zhrf3 = zhrf3:gsub('ق', 'ق')
+zhrf3 = zhrf3:gsub('ف', 'فُہ')
+zhrf3 = zhrf3:gsub('غ', 'غہ')
+zhrf3 = zhrf3:gsub('ع', 'عہ')
+zhrf3 = zhrf3:gsub('ه', 'هٰہٰٖ')
+zhrf3 = zhrf3:gsub('خ', 'خہ')
+zhrf3 = zhrf3:gsub('ح', 'حہ')
+zhrf3 = zhrf3:gsub('ج', 'جہ')
+zhrf3 = zhrf3:gsub('د', 'د')
+zhrf3 = zhrf3:gsub('ذ', 'ذ')
+zhrf3 = zhrf3:gsub('ش', 'شہ')
+zhrf3 = zhrf3:gsub('س', 'سہ')
+zhrf3 = zhrf3:gsub('ي', 'يہ')
+zhrf3 = zhrf3:gsub('ب', 'بّ')
+zhrf3 = zhrf3:gsub('ل', 'لہ')
+zhrf3 = zhrf3:gsub('ا', 'ا')
+zhrf3 = zhrf3:gsub('ت', 'تہ')
+zhrf3 = zhrf3:gsub('ن', 'نٰہٰٖ')
+zhrf3 = zhrf3:gsub('م', 'مٰہٰٖ')
+zhrf3 = zhrf3:gsub('ك', 'كُہ')
+zhrf3 = zhrf3:gsub('ط', 'طہ')
+zhrf3 = zhrf3:gsub('ئ', 'ئ ْٰ')
+zhrf3 = zhrf3:gsub('ء', 'ء')
+zhrf3 = zhrf3:gsub('ؤ', 'ؤ')
+zhrf3 = zhrf3:gsub('ر', 'رَ')
+zhrf3 = zhrf3:gsub('لا', 'لہا')
+zhrf3 = zhrf3:gsub('ى', 'ىْ')
+zhrf3 = zhrf3:gsub('ة', 'ة')
+zhrf3 = zhrf3:gsub('و', 'و')
+zhrf3 = zhrf3:gsub('ز', 'ز')
+zhrf3 = zhrf3:gsub('ظ', 'ظۗہٰٰ')
+zhrf3 = zhrf3:gsub('q', 'Ꝙ')
+zhrf3 = zhrf3:gsub('Q', 'Ꝙ')
+zhrf3 = zhrf3:gsub('w', 'ᾧ')
+zhrf3 = zhrf3:gsub('W', 'ᾧ')
+zhrf3 = zhrf3:gsub('e', 'ἔ')
+zhrf3 = zhrf3:gsub('E', 'ἔ')
+zhrf3 = zhrf3:gsub('r', 'ʀ')
+zhrf3 = zhrf3:gsub('R', 'ʀ')
+zhrf3 = zhrf3:gsub('t', 'ҭ')
+zhrf3 = zhrf3:gsub('T', 'ҭ')
+zhrf3 = zhrf3:gsub('y', 'ẏ')
+zhrf3 = zhrf3:gsub('Y', 'ẏ')
+zhrf3 = zhrf3:gsub('u', 'ὗ')
+zhrf3 = zhrf3:gsub('i', 'ἷ')
+zhrf3 = zhrf3:gsub('o', 'ὄ')
+zhrf3 = zhrf3:gsub('p', 'ῥ')
+zhrf3 = zhrf3:gsub('a', 'ᾄ')
+zhrf3 = zhrf3:gsub('s', 'ṩ')
+zhrf3 = zhrf3:gsub('d', 'ḋ')
+zhrf3 = zhrf3:gsub('f', 'ғ')
+zhrf3 = zhrf3:gsub('g', 'ʛ')
+zhrf3 = zhrf3:gsub('h', 'ђ')
+zhrf3 = zhrf3:gsub('j', 'ʝ')
+zhrf3 = zhrf3:gsub('k', 'ќ')
+zhrf3 = zhrf3:gsub('U', 'ὗ')
+zhrf3 = zhrf3:gsub('I', 'ἷ')
+zhrf3 = zhrf3:gsub('O', 'ὄ')
+zhrf3 = zhrf3:gsub('P', 'ῥ')
+zhrf3 = zhrf3:gsub('A', 'ᾄ')
+zhrf3 = zhrf3:gsub('S', 'ṩ')
+zhrf3 = zhrf3:gsub('D', 'ḋ')
+zhrf3 = zhrf3:gsub('F', 'ғ')
+zhrf3 = zhrf3:gsub('G', 'ʛ')
+zhrf3 = zhrf3:gsub('H', 'ђ')
+zhrf3 = zhrf3:gsub('J', 'ʝ')
+zhrf3 = zhrf3:gsub('K', 'ќ')
+zhrf3 = zhrf3:gsub('L', 'ł')
+zhrf3 = zhrf3:gsub('l', 'ł')
+zhrf3 = zhrf3:gsub('z', 'ẓ')
+zhrf3 = zhrf3:gsub('Z', 'ẓ')
+zhrf3 = zhrf3:gsub('x', 'ẋ')
+zhrf3 = zhrf3:gsub('X', 'ẋ')
+zhrf3 = zhrf3:gsub('c', 'ƈ')
+zhrf3 = zhrf3:gsub('C', 'ƈ')
+zhrf3 = zhrf3:gsub('v', 'v')
+zhrf3 = zhrf3:gsub('V', 'v')
+zhrf3 = zhrf3:gsub('b', 'в')
+zhrf3 = zhrf3:gsub('B', 'в')
+zhrf3 = zhrf3:gsub('n', 'ᾗ')
+zhrf3 = zhrf3:gsub('N', 'ᾗ')
+zhrf3 = zhrf3:gsub('m', 'м')
+zhrf3 = zhrf3:gsub('M', 'м')
+
+local zhrf4 = text:gsub('ض', 'ضـٰ̲ـہۜہٰٰ')
+zhrf4 = zhrf4:gsub('ص', 'صـٰ̲ـہۛہٰٰ')
+zhrf4 = zhrf4:gsub('ث', 'ثـٰ̲ـہہٰٰ')
+zhrf4 = zhrf4:gsub('ق', 'قـٰ̲ـہྀ̲ہٰٰ')
+zhrf4 = zhrf4:gsub('ف', 'فـٰ̲ـہ͒ہٰٰ')
+zhrf4 = zhrf4:gsub('غ', 'غـٰ̲ـہہٰٰ')
+zhrf4 = zhrf4:gsub('ع', 'غـٰ̲ـہہٰٰ')
+zhrf4 = zhrf4:gsub('ه', 'هٰہٰٖ')
+zhrf4 = zhrf4:gsub('خ', 'خـٰ̲ـہٰ̐ہ ')
+zhrf4 = zhrf4:gsub('ح', 'حـٰ̲ـہہٰٰ')
+zhrf4 = zhrf4:gsub('ج', 'جـٰ̲ـہْۧ')
+zhrf4 = zhrf4:gsub('د', 'دٰ')
+zhrf4 = zhrf4:gsub('ذ', 'ذِٰ')
+zhrf4 = zhrf4:gsub('ش', 'شـٰ̲ـہِٰہٰٰ')
+zhrf4 = zhrf4:gsub('س', 'شـٰ̲ـہِٰہٰٰ')
+zhrf4 = zhrf4:gsub('ي', 'شـٰ̲ـہِٰہٰٰ')
+zhrf4 = zhrf4:gsub('ب', 'بـٰ̲ـہّہ')
+zhrf4 = zhrf4:gsub('ل', 'لـٰ̲ـہ')
+zhrf4 = zhrf4:gsub('ا', 'آ')
+zhrf4 = zhrf4:gsub('ت', 'تـٰ̲ـہَہَٰ')
+zhrf4 = zhrf4:gsub('ن', 'نـٰ̲ـہَِہ')
+zhrf4 = zhrf4:gsub('م', 'مـٰ̲ـہٰ̲ہ')
+zhrf4 = zhrf4:gsub('ك', 'ڪٰྀہٰٰ')
+zhrf4 = zhrf4:gsub('ط', 'طـٰ̲ـہۨہٰٰ')
+zhrf4 = zhrf4:gsub('ئ', 'ئ ْٰ')
+zhrf4 = zhrf4:gsub('ء', 'ء')
+zhrf4 = zhrf4:gsub('ؤ', 'ؤ')
+zhrf4 = zhrf4:gsub('ر', 'رَ')
+zhrf4 = zhrf4:gsub('لا', 'لہا')
+zhrf4 = zhrf4:gsub('ى', 'ىْ')
+zhrf4 = zhrf4:gsub('ة', 'ة')
+zhrf4 = zhrf4:gsub('و', 'وِٰ')
+zhrf4 = zhrf4:gsub('ز', 'زَٰ')
+zhrf4 = zhrf4:gsub('ظ', 'ظۗہٰٰ')
+zhrf4 = zhrf4:gsub('q', 'Ꝙ')
+zhrf4 = zhrf4:gsub('Q', 'Ꝙ')
+zhrf4 = zhrf4:gsub('w', 'Ɯ')
+zhrf4 = zhrf4:gsub('W', 'Ɯ')
+zhrf4 = zhrf4:gsub('e', 'Є')
+zhrf4 = zhrf4:gsub('E', 'Є')
+zhrf4 = zhrf4:gsub('r', 'Ʀ')
+zhrf4 = zhrf4:gsub('R', 'Ʀ')
+zhrf4 = zhrf4:gsub('t', 'Ƭ')
+zhrf4 = zhrf4:gsub('T', 'Ƭ')
+zhrf4 = zhrf4:gsub('y', 'Ƴ')
+zhrf4 = zhrf4:gsub('Y', 'Ƴ')
+zhrf4 = zhrf4:gsub('u', 'Ʋ')
+zhrf4 = zhrf4:gsub('i', 'Ɩ')
+zhrf4 = zhrf4:gsub('o', 'Ơ')
+zhrf4 = zhrf4:gsub('p', 'Ƥ')
+zhrf4 = zhrf4:gsub('a', 'ƛ')
+zhrf4 = zhrf4:gsub('s', 'Ƨ')
+zhrf4 = zhrf4:gsub('d', 'Ɗ')
+zhrf4 = zhrf4:gsub('f', 'Ƒ')
+zhrf4 = zhrf4:gsub('g', 'Ɠ')
+zhrf4 = zhrf4:gsub('h', 'Ӈ')
+zhrf4 = zhrf4:gsub('j', 'ʆ')
+zhrf4 = zhrf4:gsub('k', 'Ƙ')
+zhrf4 = zhrf4:gsub('U', 'Ʋ')
+zhrf4 = zhrf4:gsub('I', 'Ɩ')
+zhrf4 = zhrf4:gsub('O', 'Ơ')
+zhrf4 = zhrf4:gsub('P', 'Ƥ')
+zhrf4 = zhrf4:gsub('A', 'ƛ')
+zhrf4 = zhrf4:gsub('S', 'Ƨ')
+zhrf4 = zhrf4:gsub('D', 'ḋ')
+zhrf4 = zhrf4:gsub('F', 'ғ')
+zhrf4 = zhrf4:gsub('G', 'ʛ')
+zhrf4 = zhrf4:gsub('H', 'ђ')
+zhrf4 = zhrf4:gsub('J', 'ʝ')
+zhrf4 = zhrf4:gsub('K', 'ќ')
+zhrf4 = zhrf4:gsub('L', 'Լ')
+zhrf4 = zhrf4:gsub('l', 'Լ')
+zhrf4 = zhrf4:gsub('z', 'Ȥ')
+zhrf4 = zhrf4:gsub('Z', 'Ȥ')
+zhrf4 = zhrf4:gsub('x', 'Ҳ')
+zhrf4 = zhrf4:gsub('X', 'Ҳ')
+zhrf4 = zhrf4:gsub('c', 'Ƈ')
+zhrf4 = zhrf4:gsub('C', 'Ƈ')
+zhrf4 = zhrf4:gsub('v', 'Ɣ')
+zhrf4 = zhrf4:gsub('V', 'Ɣ')
+zhrf4 = zhrf4:gsub('b', 'Ɓ')
+zhrf4 = zhrf4:gsub('B', 'Ɓ')
+zhrf4 = zhrf4:gsub('n', 'Ɲ')
+zhrf4 = zhrf4:gsub('N', 'Ɲ')
+zhrf4 = zhrf4:gsub('m', 'M')
+zhrf4 = zhrf4:gsub('M', 'M')
+
+local zhrf5 = text:gsub('ض', 'ضۜہٰٰ')
+zhrf5 = zhrf5:gsub('ص', 'ضۜہٰٰ')
+zhrf5 = zhrf5:gsub('ث', 'ثہٰٰ')
+zhrf5 = zhrf5:gsub('ق', 'قྀ̲ہٰٰ')
+zhrf5 = zhrf5:gsub('ف', 'ف͒ہٰٰ')
+zhrf5 = zhrf5:gsub('غ', 'غہٰٰ')
+zhrf5 = zhrf5:gsub('ع', 'عہٰٰ')
+zhrf5 = zhrf5:gsub('ه', 'هٰہٰٖ')
+zhrf5 = zhrf5:gsub('خ', 'خٰ̐ہ ')
+zhrf5 = zhrf5:gsub('ح', 'حہٰٰ')
+zhrf5 = zhrf5:gsub('ج', 'جـٰ̲ـہْۧ')
+zhrf5 = zhrf5:gsub('د', 'دٰ')
+zhrf5 = zhrf5:gsub('ذ', 'ذِٰ')
+zhrf5 = zhrf5:gsub('ش', 'شِٰہٰٰ')
+zhrf5 = zhrf5:gsub('س', 'سٰٓ')
+zhrf5 = zhrf5:gsub('ي', 'يِٰہ')
+zhrf5 = zhrf5:gsub('ب', 'بّہ')
+zhrf5 = zhrf5:gsub('ل', 'لـٰ̲ـہ')
+zhrf5 = zhrf5:gsub('ا', 'آ')
+zhrf5 = zhrf5:gsub('ت', 'تَہَٰ')
+zhrf5 = zhrf5:gsub('ن', 'نَِہ')
+zhrf5 = zhrf5:gsub('م', 'مٰ̲ہ')
+zhrf5 = zhrf5:gsub('ك', 'ڪٰྀہٰٰ')
+zhrf5 = zhrf5:gsub('ط', 'طۨہٰٰ')
+zhrf5 = zhrf5:gsub('ئ', 'ئ ْٰ')
+zhrf5 = zhrf5:gsub('ء', 'ء')
+zhrf5 = zhrf5:gsub('ؤ', 'ؤ')
+zhrf5 = zhrf5:gsub('ر', 'رَ')
+zhrf5 = zhrf5:gsub('لا', 'لہا')
+zhrf5 = zhrf5:gsub('ى', 'ىْ')
+zhrf5 = zhrf5:gsub('ة', 'ة')
+zhrf5 = zhrf5:gsub('و', 'وِٰ')
+zhrf5 = zhrf5:gsub('ز', 'زَٰ')
+zhrf5 = zhrf5:gsub('ظ', 'ظۗہٰٰ')
+zhrf5 = zhrf5:gsub('a', 'ᴀ')
+zhrf5 = zhrf5:gsub('b', 'ʙ')
+zhrf5 = zhrf5:gsub('c', 'ᴄ')
+zhrf5 = zhrf5:gsub('d', 'ᴅ')
+zhrf5 = zhrf5:gsub('e', 'ᴇ')
+zhrf5 = zhrf5:gsub('f', 'ᴈ')
+zhrf5 = zhrf5:gsub('g', 'ɢ')
+zhrf5 = zhrf5:gsub('h', 'ʜ')
+zhrf5 = zhrf5:gsub('i', 'ɪ')
+zhrf5 = zhrf5:gsub('j', 'ᴊ')
+zhrf5 = zhrf5:gsub('k', 'ᴋ')
+zhrf5 = zhrf5:gsub('l', 'ʟ')
+zhrf5 = zhrf5:gsub('m', 'ᴍ')
+zhrf5 = zhrf5:gsub('n', 'ɴ')
+zhrf5 = zhrf5:gsub('o', 'ᴏ')
+zhrf5 = zhrf5:gsub('p', 'ᴘ')
+zhrf5 = zhrf5:gsub('q', 'ᴓ')
+zhrf5 = zhrf5:gsub('r', 'ʀ')
+zhrf5 = zhrf5:gsub('s', 'ᴤ')
+zhrf5 = zhrf5:gsub('t', 'ᴛ')
+zhrf5 = zhrf5:gsub('u', 'ᴜ')
+zhrf5 = zhrf5:gsub('v', 'ᴠ')
+zhrf5 = zhrf5:gsub('w', 'ᴡ')
+zhrf5 = zhrf5:gsub('x', 'ᴥ')
+zhrf5 = zhrf5:gsub('y', 'ʏ')
+zhrf5 = zhrf5:gsub('z', 'ᴢ')
+
+
+local zhrf6 = text:gsub('ض', 'ض͜ـ')
+zhrf6 = zhrf6:gsub('ص', 'ص͜ـ')
+zhrf6 = zhrf6:gsub('ث', 'ث͜ـ͜ـ')
+zhrf6 = zhrf6:gsub('ق', 'ق͜ـ')
+zhrf6 = zhrf6:gsub('ف', 'ف͒͜ـ')
+zhrf6 = zhrf6:gsub('غ', 'غ͜ـ')
+zhrf6 = zhrf6:gsub('ع', 'ع͜ـ')
+zhrf6 = zhrf6:gsub('خ', 'خ̐͜ـ')
+zhrf6 = zhrf6:gsub('ح', 'ح͜ـ')
+zhrf6 = zhrf6:gsub('ج', 'ج͜ـ')
+zhrf6 = zhrf6:gsub('ش', 'ش͜ـ')
+zhrf6 = zhrf6:gsub('س', 'س͜ـ')
+zhrf6 = zhrf6:gsub('ي', 'ي͜ـ')
+zhrf6 = zhrf6:gsub('ب', 'ب͜ـ')
+zhrf6 = zhrf6:gsub('ل', 'ل͜ـ')
+zhrf6 = zhrf6:gsub('ا', 'آ')
+zhrf6 = zhrf6:gsub('ت', 'ت͜ـ')
+zhrf6 = zhrf6:gsub('ن', 'ن͜ـ')
+zhrf6 = zhrf6:gsub('م', 'م͜ـ')
+zhrf6 = zhrf6:gsub('ك', 'ڪ͜ـ')
+zhrf6 = zhrf6:gsub('ط', 'ط͜ـ')
+zhrf6 = zhrf6:gsub('ظ', 'ظ͜ـ')
+zhrf6 = zhrf6:gsub('ء', 'ء')
+zhrf6 = zhrf6:gsub('ؤ', 'ؤ')
+zhrf6 = zhrf6:gsub('ر', 'ر')
+zhrf6 = zhrf6:gsub('ى', 'ى')
+zhrf6 = zhrf6:gsub('ز', 'ز')
+zhrf6 = zhrf6:gsub('ظ', 'ظـ')
+zhrf6 = zhrf6:gsub('و', 'ﯛ̲୭')
+zhrf6 = zhrf6:gsub("ه", "ۿۿہ")
+
+zhrf6 = zhrf6:gsub('q', 'ƍ')
+zhrf6 = zhrf6:gsub('Q', 'ƍ')
+zhrf6 = zhrf6:gsub('w', 'w')
+zhrf6 = zhrf6:gsub('W', 'w')
+zhrf6 = zhrf6:gsub('e', 'È')
+zhrf6 = zhrf6:gsub('E', 'È')
+zhrf6 = zhrf6:gsub('r', 'r')
+zhrf6 = zhrf6:gsub('R', 'r')
+zhrf6 = zhrf6:gsub('t', '⊥')
+zhrf6 = zhrf6:gsub('T', '⊥')
+zhrf6 = zhrf6:gsub('y', 'ý')
+zhrf6 = zhrf6:gsub('Y', 'ý')
+zhrf6 = zhrf6:gsub('u', 'µ')
+zhrf6 = zhrf6:gsub('U', 'µ')
+zhrf6 = zhrf6:gsub('i', 'Î')
+zhrf6 = zhrf6:gsub('I', 'Î')
+zhrf6 = zhrf6:gsub('o', '◊')
+zhrf6 = zhrf6:gsub('O', '◊')
+zhrf6 = zhrf6:gsub('p', 'Ƿ')
+zhrf6 = zhrf6:gsub('P', 'Ƿ')
+zhrf6 = zhrf6:gsub('a', 'ª')
+zhrf6 = zhrf6:gsub('A', 'ª')
+zhrf6 = zhrf6:gsub('s', 'S')
+zhrf6 = zhrf6:gsub('S', 'S')
+zhrf6 = zhrf6:gsub('d', 'Þ')
+zhrf6 = zhrf6:gsub('D', 'Þ')
+zhrf6 = zhrf6:gsub('f', 'F')
+zhrf6 = zhrf6:gsub('F', 'F')
+zhrf6 = zhrf6:gsub('g', '૬')
+zhrf6 = zhrf6:gsub('G', '૬')
+zhrf6 = zhrf6:gsub('h', 'ɧ')
+zhrf6 = zhrf6:gsub('H', 'ɧ')
+zhrf6 = zhrf6:gsub('j', 'j')
+zhrf6 = zhrf6:gsub('J', 'j')
+zhrf6 = zhrf6:gsub('L', 'Ļ')
+zhrf6 = zhrf6:gsub('l', 'Ļ')
+zhrf6 = zhrf6:gsub('z', 'z')
+zhrf6 = zhrf6:gsub('Z', 'z')
+zhrf6 = zhrf6:gsub('x', '×')
+zhrf6 = zhrf6:gsub('X', '×')
+zhrf6 = zhrf6:gsub('c', '¢')
+zhrf6 = zhrf6:gsub('C', '¢')
+zhrf6 = zhrf6:gsub('v', '√')
+zhrf6 = zhrf6:gsub('V', '√')
+zhrf6 = zhrf6:gsub('b', 'b')
+zhrf6 = zhrf6:gsub('B', 'b')
+zhrf6 = zhrf6:gsub('n', 'η')
+zhrf6 = zhrf6:gsub('N', 'η')
+zhrf6 = zhrf6:gsub('m', 'м')
+zhrf6 = zhrf6:gsub('M', 'м')
+
+local zhrf7 = text:gsub('ض', 'ﺿ̭͠')
+zhrf7 = zhrf7:gsub('ص', 'ﺻ͡')
+zhrf7 = zhrf7:gsub('ث', 'ﺜ̲')
+zhrf7 = zhrf7:gsub('ق', 'ﭰ')
+zhrf7 = zhrf7:gsub('ف', 'ﻓ̲')
+zhrf7 = zhrf7:gsub('غ', 'ﻏ̲')
+zhrf7 = zhrf7:gsub('ع', 'ﻌ̲')
+zhrf7 = zhrf7:gsub('ه', 'ﮬ̲̌')
+zhrf7 = zhrf7:gsub('خ', 'خٌ')
+zhrf7 = zhrf7:gsub('ح', 'ﺣ̅')
+zhrf7 = zhrf7:gsub('ج', 'جُ')
+zhrf7 = zhrf7:gsub('د', 'ډ̝')
+zhrf7 = zhrf7:gsub('ذ', 'ذً')
+zhrf7 = zhrf7:gsub('ش', 'ﺷ̲')
+zhrf7 = zhrf7:gsub('س', 'ﺳ̉')
+zhrf7 = zhrf7:gsub('ي', 'ﯾ̃̐')
+zhrf7 = zhrf7:gsub('ب', 'ﺑ̲')
+zhrf7 = zhrf7:gsub('ل', 'ا̄ﻟ')
+zhrf7 = zhrf7:gsub('ا', 'ﺈ̃')
+zhrf7 = zhrf7:gsub('ت', 'ټُ')
+zhrf7 = zhrf7:gsub('ن', 'ﻧ̲')
+zhrf7 = zhrf7:gsub('م', 'ﻣ̲̉')
+zhrf7 = zhrf7:gsub('ك', 'گ')
+zhrf7 = zhrf7:gsub('ط', 'ﻁ̲')
+zhrf7 = zhrf7:gsub('ئ', ' ْٰئ')
+zhrf7 = zhrf7:gsub('ء', 'ء')
+zhrf7 = zhrf7:gsub('ؤ', 'ؤ')
+zhrf7 = zhrf7:gsub('ر', 'ہڕ')
+zhrf7 = zhrf7:gsub('لا', 'ﻟ̲ﺂ̲')
+zhrf7 = zhrf7:gsub('ى', 'ى')
+zhrf7 = zhrf7:gsub('ة', 'ة')
+zhrf7 = zhrf7:gsub('و', 'ۇۈۉ')
+zhrf7 = zhrf7:gsub('ز', 'زُ')
+zhrf7 = zhrf7:gsub('ظ', 'ﻇ̲')
+zhrf7 = zhrf7:gsub('q', 'Ⴓ')
+zhrf7 = zhrf7:gsub('Q', 'Ⴓ')
+zhrf7 = zhrf7:gsub('w', 'Ш')
+zhrf7 = zhrf7:gsub('W', 'Ш')
+zhrf7 = zhrf7:gsub('e', 'Σ')
+zhrf7 = zhrf7:gsub('E', 'Σ')
+zhrf7 = zhrf7:gsub('r', 'Γ')
+zhrf7 = zhrf7:gsub('R', 'Γ')
+zhrf7 = zhrf7:gsub('t', 'Ƭ')
+zhrf7 = zhrf7:gsub('T', 'Ƭ')
+zhrf7 = zhrf7:gsub('y', 'Ψ')
+zhrf7 = zhrf7:gsub('Y', 'Ψ')
+zhrf7 = zhrf7:gsub('u', 'Ʊ')
+zhrf7 = zhrf7:gsub('U', 'Ʊ')
+zhrf7 = zhrf7:gsub('i', 'I')
+zhrf7 = zhrf7:gsub('I', 'I')
+zhrf7 = zhrf7:gsub('o', 'Θ')
+zhrf7 = zhrf7:gsub('O', 'Θ')
+zhrf7 = zhrf7:gsub('p', 'Ƥ')
+zhrf7 = zhrf7:gsub('P', 'Ƥ')
+zhrf7 = zhrf7:gsub('a', 'Δ')
+zhrf7 = zhrf7:gsub('A', 'Δ')
+zhrf7 = zhrf7:gsub('s', 'Ѕ')
+zhrf7 = zhrf7:gsub('S', 'Ѕ')
+zhrf7 = zhrf7:gsub('d', 'D')
+zhrf7 = zhrf7:gsub('D', 'D')
+zhrf7 = zhrf7:gsub('f', 'F')
+zhrf7 = zhrf7:gsub('F', 'F')
+zhrf7 = zhrf7:gsub('g', 'G')
+zhrf7 = zhrf7:gsub('G', 'G')
+zhrf7 = zhrf7:gsub('h', 'H')
+zhrf7 = zhrf7:gsub('H', 'H')
+zhrf7 = zhrf7:gsub('j', 'J')
+zhrf7 = zhrf7:gsub('J', 'J')
+zhrf7 = zhrf7:gsub('L', 'L')
+zhrf7 = zhrf7:gsub('l', 'L')
+zhrf7 = zhrf7:gsub('z', 'Z')
+zhrf7 = zhrf7:gsub('Z', 'Z')
+zhrf7 = zhrf7:gsub('x', 'Ж')
+zhrf7 = zhrf7:gsub('X', 'Ж')
+zhrf7 = zhrf7:gsub('c', 'C')
+zhrf7 = zhrf7:gsub('C', 'C')
+zhrf7 = zhrf7:gsub('v', 'Ʋ')
+zhrf7 = zhrf7:gsub('V', 'Ʋ')
+zhrf7 = zhrf7:gsub('b', 'Ɓ')
+zhrf7 = zhrf7:gsub('B', 'Ɓ')
+zhrf7 = zhrf7:gsub('n', '∏')
+zhrf7 = zhrf7:gsub('N', '∏')
+zhrf7 = zhrf7:gsub('m', 'Μ')
+zhrf7 = zhrf7:gsub('M', 'Μ')
+
+local zhrf8 = text:gsub('ض', 'ضہ')
+zhrf8 = zhrf8:gsub('ص', 'صہ')
+zhrf8 = zhrf8:gsub('ث', 'ثہ')
+zhrf8 = zhrf8:gsub('ق', 'قہ')
+zhrf8 = zhrf8:gsub('ف', 'فہ')
+zhrf8 = zhrf8:gsub('غ', 'غہ')
+zhrf8 = zhrf8:gsub('ع', 'عہ')
+zhrf8 = zhrf8:gsub('خ', 'خہ')
+zhrf8 = zhrf8:gsub('ح', 'حہ')
+zhrf8 = zhrf8:gsub('ج', 'جہ')
+zhrf8 = zhrf8:gsub('ش', 'شہ')
+zhrf8 = zhrf8:gsub('س', 'سہ')
+zhrf8 = zhrf8:gsub('ي', 'يہ')
+zhrf8 = zhrf8:gsub('ب', 'بہ')
+zhrf8 = zhrf8:gsub('ل', 'ل')
+zhrf8 = zhrf8:gsub('ا', 'آ')
+zhrf8 = zhrf8:gsub('ت', 'تہ')
+zhrf8 = zhrf8:gsub('ن', 'نہ')
+zhrf8 = zhrf8:gsub('م', 'مہ')
+zhrf8 = zhrf8:gsub('ك', 'كہ')
+zhrf8 = zhrf8:gsub('ط', 'طہ')
+zhrf8 = zhrf8:gsub('ظ', 'ظہ')
+zhrf8 = zhrf8:gsub('ء', 'ء')
+zhrf8 = zhrf8:gsub('ؤ', 'ؤ')
+zhrf8 = zhrf8:gsub('ر', 'ر')
+zhrf8 = zhrf8:gsub('ى', 'ى')
+zhrf8 = zhrf8:gsub('ز', 'ز')
+zhrf8 = zhrf8:gsub('و', 'ﯛ̲୭')
+zhrf8 = zhrf8:gsub("ه", "ۿۿہ")
+
+zhrf8 = zhrf8:gsub('q', '๑')
+zhrf8 = zhrf8:gsub('Q', '๑')
+zhrf8 = zhrf8:gsub('w', 'ຟ')
+zhrf8 = zhrf8:gsub('W', 'ຟ')
+zhrf8 = zhrf8:gsub('e', 'ē')
+zhrf8 = zhrf8:gsub('E', 'ē')
+zhrf8 = zhrf8:gsub('r', 'r')
+zhrf8 = zhrf8:gsub('R', 'r')
+zhrf8 = zhrf8:gsub('t', 't')
+zhrf8 = zhrf8:gsub('T', 't')
+zhrf8 = zhrf8:gsub('y', 'ฯ')
+zhrf8 = zhrf8:gsub('Y', 'ฯ')
+zhrf8 = zhrf8:gsub('u', 'น')
+zhrf8 = zhrf8:gsub('U', 'น')
+zhrf8 = zhrf8:gsub('i', 'i')
+zhrf8 = zhrf8:gsub('I', 'i')
+zhrf8 = zhrf8:gsub('o', '໐')
+zhrf8 = zhrf8:gsub('O', '໐')
+zhrf8 = zhrf8:gsub('p', 'p')
+zhrf8 = zhrf8:gsub('P', 'p')
+zhrf8 = zhrf8:gsub('a', 'ค')
+zhrf8 = zhrf8:gsub('A', 'ค')
+zhrf8 = zhrf8:gsub('s', 'Ş')
+zhrf8 = zhrf8:gsub('S', 'Ş')
+zhrf8 = zhrf8:gsub('d', '໓')
+zhrf8 = zhrf8:gsub('D', '໓')
+zhrf8 = zhrf8:gsub('f', 'f')
+zhrf8 = zhrf8:gsub('F', 'f')
+zhrf8 = zhrf8:gsub('g', 'ງ')
+zhrf8 = zhrf8:gsub('G', 'ງ')
+zhrf8 = zhrf8:gsub('h', 'h')
+zhrf8 = zhrf8:gsub('H', 'h')
+zhrf8 = zhrf8:gsub('j', 'ว')
+zhrf8 = zhrf8:gsub('J', 'ว')
+zhrf8 = zhrf8:gsub('k', 'k')
+zhrf8 = zhrf8:gsub('K', 'k')
+zhrf8 = zhrf8:gsub('L', 'l')
+zhrf8 = zhrf8:gsub('l', 'l')
+zhrf8 = zhrf8:gsub('z', 'ຊ')
+zhrf8 = zhrf8:gsub('Z', 'ຊ')
+zhrf8 = zhrf8:gsub('x', 'x')
+zhrf8 = zhrf8:gsub('X', 'x')
+zhrf8 = zhrf8:gsub('c', '¢')
+zhrf8 = zhrf8:gsub('C', '¢')
+zhrf8 = zhrf8:gsub('v', 'ง')
+zhrf8 = zhrf8:gsub('V', 'ง')
+zhrf8 = zhrf8:gsub('b', '๖')
+zhrf8 = zhrf8:gsub('B', '๖')
+zhrf8 = zhrf8:gsub('n', 'ຖ')
+zhrf8 = zhrf8:gsub('N', 'ຖ')
+zhrf8 = zhrf8:gsub('m', '๓')
+zhrf8 = zhrf8:gsub('M', '๓')
+
+local zhrf9 = text:gsub('ض', 'ض')
+zhrf9 = zhrf9:gsub('ص', 'صہٰ')
+zhrf9 = zhrf9:gsub('ث', 'ثہٰـ')
+zhrf9 = zhrf9:gsub('ق', 'قہٰ')
+zhrf9 = zhrf9:gsub('ف', 'فہٰ')
+zhrf9 = zhrf9:gsub('غ', 'غـْ')
+zhrf9 = zhrf9:gsub('ع', 'ع')
+zhrf9 = zhrf9:gsub('ه', 'هٰہٰٖ')
+zhrf9 = zhrf9:gsub('خ', 'خخَـ')
+zhrf9 = zhrf9:gsub('ح', 'حہٰ')
+zhrf9 = zhrf9:gsub('ج', 'ججہٰ')
+zhrf9 = zhrf9:gsub('د', 'دَ')
+zhrf9 = zhrf9:gsub('ذ', 'ذّ')
+zhrf9 = zhrf9:gsub('ش', 'ششہٰ')
+zhrf9 = zhrf9:gsub('س', 'سہٰ')
+zhrf9 = zhrf9:gsub('ي', 'يٰ')
+zhrf9 = zhrf9:gsub('ب', 'بٰٰ')
+zhrf9 = zhrf9:gsub('ل', 'لہٰ')
+zhrf9 = zhrf9:gsub('ا', 'آ')
+zhrf9 = zhrf9:gsub('ت', 'تہٰ')
+zhrf9 = zhrf9:gsub('ن', 'نہٰ')
+zhrf9 = zhrf9:gsub('م', 'مہٰ')
+zhrf9 = zhrf9:gsub('ك', 'ككہٰ')
+zhrf9 = zhrf9:gsub('ط', 'طہٰ')
+zhrf9 = zhrf9:gsub('ئ', ' ْئٰ')
+zhrf9 = zhrf9:gsub('ء', 'ء')
+zhrf9 = zhrf9:gsub('ؤ', 'ؤؤَ')
+zhrf9 = zhrf9:gsub('ر', 'رَ')
+zhrf9 = zhrf9:gsub('لا', 'لہٰا')
+zhrf9 = zhrf9:gsub('ى', 'ىہٰ')
+zhrf9 = zhrf9:gsub('ة', 'ة')
+zhrf9 = zhrf9:gsub('و', 'ہٰو')
+zhrf9 = zhrf9:gsub('ز', 'ز')
+zhrf9 = zhrf9:gsub('ظ', 'ظہٰ')
+zhrf9 = zhrf9:gsub('q', 'զ')
+zhrf9 = zhrf9:gsub('Q', 'զ')
+zhrf9 = zhrf9:gsub('w', 'ա')
+zhrf9 = zhrf9:gsub('W', 'ա')
+zhrf9 = zhrf9:gsub('e', 'ɛ')
+zhrf9 = zhrf9:gsub('E', 'ɛ')
+zhrf9 = zhrf9:gsub('r', 'ʀ')
+zhrf9 = zhrf9:gsub('R', 'ʀ')
+zhrf9 = zhrf9:gsub('t', 'ȶ')
+zhrf9 = zhrf9:gsub('T', 'ȶ')
+zhrf9 = zhrf9:gsub('y', 'ʏ')
+zhrf9 = zhrf9:gsub('Y', 'ʏ')
+zhrf9 = zhrf9:gsub('u', 'ʊ')
+zhrf9 = zhrf9:gsub('U', 'ʊ')
+zhrf9 = zhrf9:gsub('i', 'ɨ')
+zhrf9 = zhrf9:gsub('I', 'ɨ')
+zhrf9 = zhrf9:gsub('o', 'օ')
+zhrf9 = zhrf9:gsub('O', 'օ')
+zhrf9 = zhrf9:gsub('p', 'ք')
+zhrf9 = zhrf9:gsub('P', 'ք')
+zhrf9 = zhrf9:gsub('a', 'ǟ')
+zhrf9 = zhrf9:gsub('A', 'ǟ')
+zhrf9 = zhrf9:gsub('s', 'ֆ')
+zhrf9 = zhrf9:gsub('S', 'ֆ')
+zhrf9 = zhrf9:gsub('d', 'ɖ')
+zhrf9 = zhrf9:gsub('D', 'ɖ')
+zhrf9 = zhrf9:gsub('f', 'ʄ')
+zhrf9 = zhrf9:gsub('F', 'ʄ')
+zhrf9 = zhrf9:gsub('g', 'ɢ')
+zhrf9 = zhrf9:gsub('G', 'ɢ')
+zhrf9 = zhrf9:gsub('h', 'ɦ')
+zhrf9 = zhrf9:gsub('H', 'ɦ')
+zhrf9 = zhrf9:gsub('j', 'ʝ')
+zhrf9 = zhrf9:gsub('J', 'ʝ')
+zhrf9 = zhrf9:gsub('k', 'ӄ')
+zhrf9 = zhrf9:gsub('K', 'ӄ')
+zhrf9 = zhrf9:gsub('L', 'ʟ')
+zhrf9 = zhrf9:gsub('l', 'ʟ')
+zhrf9 = zhrf9:gsub('z', 'ʐ')
+zhrf9 = zhrf9:gsub('Z', 'ʐ')
+zhrf9 = zhrf9:gsub('x', 'Ӽ')
+zhrf9 = zhrf9:gsub('X', 'Ӽ')
+zhrf9 = zhrf9:gsub('c', 'ƈ')
+zhrf9 = zhrf9:gsub('C', 'ƈ')
+zhrf9 = zhrf9:gsub('v', 'ʋ')
+zhrf9 = zhrf9:gsub('V', 'ʋ')
+zhrf9 = zhrf9:gsub('b', 'ɮ')
+zhrf9 = zhrf9:gsub('B', 'ɮ')
+zhrf9 = zhrf9:gsub('n', 'ռ')
+zhrf9 = zhrf9:gsub('N', 'ռ')
+zhrf9 = zhrf9:gsub('m', 'ʍ')
+zhrf9 = zhrf9:gsub('M', 'ʍ')
+
+local zhrf10 = text:gsub('ض', 'ضِـٰٚـ')
+zhrf10 = zhrf10:gsub('ص', 'صِـٰٚـ')
+zhrf10 = zhrf10:gsub('ث', 'ثِـٰٚـ')
+zhrf10 = zhrf10:gsub('ق', 'قِـٰٚـ')
+zhrf10 = zhrf10:gsub('ف', 'فِ͒ـٰٚـ')
+zhrf10 = zhrf10:gsub('غ', 'غِـٰٚـ')
+zhrf10 = zhrf10:gsub('ع', 'عِـٰٚـ')
+zhrf10 = zhrf10:gsub('خ', 'خِ̐ـٰٚـ')
+zhrf10 = zhrf10:gsub('ح', 'حِـٰٚـ')
+zhrf10 = zhrf10:gsub('ج', 'جِـٰٚـِِـٰٚـِْ')
+zhrf10 = zhrf10:gsub('ش', 'شِـٰٚـ')
+zhrf10 = zhrf10:gsub('س', 'سِـٰٚـ')
+zhrf10 = zhrf10:gsub('ي', 'يِـٰٚـ')
+zhrf10 = zhrf10:gsub('ب', 'بِـٰٚـ')
+zhrf10 = zhrf10:gsub('ل', 'لِـٰٚـ')
+zhrf10 = zhrf10:gsub('ا', 'آ')
+zhrf10 = zhrf10:gsub('ت', 'تِـٰٚـ')
+zhrf10 = zhrf10:gsub('ن', 'نِـٰٚـ')
+zhrf10 = zhrf10:gsub('م', 'مِـٰٚـ')
+zhrf10 = zhrf10:gsub('ك', 'ڪِـٰٚـ')
+zhrf10 = zhrf10:gsub('ط', 'طِـٰٚـ')
+zhrf10 = zhrf10:gsub('ذ', 'ذِـٰٚـ')
+zhrf10 = zhrf10:gsub('ظ', 'ظِـٰٚـ')
+zhrf10 = zhrf10:gsub('ء', 'ء')
+zhrf10 = zhrf10:gsub('ؤ', 'ؤ')
+zhrf10 = zhrf10:gsub('ر', 'ر')
+zhrf10 = zhrf10:gsub('ى', 'ى')
+zhrf10 = zhrf10:gsub('ز', 'ز')
+zhrf10 = zhrf10:gsub('ظ', 'ظِـٰٚـ')
+zhrf10 = zhrf10:gsub('و', 'ﯛ̲୭')
+zhrf10 = zhrf10:gsub("ه", "ۿۿہ")
+zhrf10 = zhrf10:gsub('q', 'Q')
+zhrf10 = zhrf10:gsub('Q', 'Q')
+zhrf10 = zhrf10:gsub('w', 'Ẃ')
+zhrf10 = zhrf10:gsub('W', 'Ẃ')
+zhrf10 = zhrf10:gsub('e', 'Ἕ')
+zhrf10 = zhrf10:gsub('E', 'Ἕ')
+zhrf10 = zhrf10:gsub('r', 'Ȓ')
+zhrf10 = zhrf10:gsub('R', 'Ȓ')
+zhrf10 = zhrf10:gsub('t', 'Ҭ')
+zhrf10 = zhrf10:gsub('T', 'Ҭ')
+zhrf10 = zhrf10:gsub('y', 'Ὓ')
+zhrf10 = zhrf10:gsub('Y', 'Ὓ')
+zhrf10 = zhrf10:gsub('u', 'Ȗ')
+zhrf10 = zhrf10:gsub('U', 'Ȗ')
+zhrf10 = zhrf10:gsub('i', 'Ἷ')
+zhrf10 = zhrf10:gsub('I', 'Ἷ')
+zhrf10 = zhrf10:gsub('o', 'Ὃ')
+zhrf10 = zhrf10:gsub('O', 'Ὃ')
+zhrf10 = zhrf10:gsub('p', 'Ƥ')
+zhrf10 = zhrf10:gsub('P', 'Ƥ')
+zhrf10 = zhrf10:gsub('a', 'ᾋ')
+zhrf10 = zhrf10:gsub('A', 'ᾋ')
+zhrf10 = zhrf10:gsub('s', 'Ṩ')
+zhrf10 = zhrf10:gsub('S', 'Ṩ')
+zhrf10 = zhrf10:gsub('d', 'Ɖ')
+zhrf10 = zhrf10:gsub('D', 'Ɖ')
+zhrf10 = zhrf10:gsub('f', 'Ғ')
+zhrf10 = zhrf10:gsub('F', 'Ғ')
+zhrf10 = zhrf10:gsub('g', 'Ɠ')
+zhrf10 = zhrf10:gsub('G', 'Ɠ')
+zhrf10 = zhrf10:gsub('h', 'Ἤ')
+zhrf10 = zhrf10:gsub('H', 'Ἤ')
+zhrf10 = zhrf10:gsub('j', 'Ј')
+zhrf10 = zhrf10:gsub('J', 'Ј')
+zhrf10 = zhrf10:gsub('k', 'Ḱ')
+zhrf10 = zhrf10:gsub('K', 'Ḱ')
+zhrf10 = zhrf10:gsub('L', 'Ŀ')
+zhrf10 = zhrf10:gsub('l', 'Ŀ')
+zhrf10 = zhrf10:gsub('z', 'Ẕ')
+zhrf10 = zhrf10:gsub('Z', 'Ẕ')
+zhrf10 = zhrf10:gsub('x', 'Ẋ')
+zhrf10 = zhrf10:gsub('X', 'Ẋ')
+zhrf10 = zhrf10:gsub('c', 'Ƈ')
+zhrf10 = zhrf10:gsub('C', 'Ƈ')
+zhrf10 = zhrf10:gsub('v', 'V')
+zhrf10 = zhrf10:gsub('V', 'V')
+zhrf10 = zhrf10:gsub('b', 'ϐ')
+zhrf10 = zhrf10:gsub('B', 'ϐ')
+zhrf10 = zhrf10:gsub('n', 'Ɲ')
+zhrf10 = zhrf10:gsub('N', 'Ɲ')
+zhrf10 = zhrf10:gsub('m', 'Ṃ')
+zhrf10 = zhrf10:gsub('M', 'Ṃ')
+
+local zhrf11 = text:gsub("q", "q")
+zhrf11 = zhrf11:gsub("Q", "q")
+zhrf11 = zhrf11:gsub("w", "ω")
+zhrf11 = zhrf11:gsub("W", "ω")
+zhrf11 = zhrf11:gsub("e", "ε")
+zhrf11 = zhrf11:gsub("E", "ε")
+zhrf11 = zhrf11:gsub("r", "я")
+zhrf11 = zhrf11:gsub("R", "я")
+zhrf11 = zhrf11:gsub("T", "т")
+zhrf11 = zhrf11:gsub("t", "т")
+zhrf11 = zhrf11:gsub("y", "ү")
+zhrf11 = zhrf11:gsub("Y", "ү")
+zhrf11 = zhrf11:gsub("u", "υ")
+zhrf11 = zhrf11:gsub("U", "υ")
+zhrf11 = zhrf11:gsub("i", "ι")
+zhrf11 = zhrf11:gsub("I", "ι")
+zhrf11 = zhrf11:gsub("o", "σ")
+zhrf11 = zhrf11:gsub("O", "σ")
+zhrf11 = zhrf11:gsub("p", "ρ")
+zhrf11 = zhrf11:gsub("P", "ρ")
+zhrf11 = zhrf11:gsub("a", "α")
+zhrf11 = zhrf11:gsub("A", "α")
+zhrf11 = zhrf11:gsub("s", "s")
+zhrf11 = zhrf11:gsub("S", "s")
+zhrf11 = zhrf11:gsub("d", "∂")
+zhrf11 = zhrf11:gsub("D", "∂")
+zhrf11 = zhrf11:gsub("f", "ғ")
+zhrf11 = zhrf11:gsub("F", "ғ")
+zhrf11 = zhrf11:gsub("g", "g")
+zhrf11 = zhrf11:gsub("G", "g")
+zhrf11 = zhrf11:gsub("h", "н")
+zhrf11 = zhrf11:gsub("H", "н")
+zhrf11 = zhrf11:gsub("j", "נ")
+zhrf11 = zhrf11:gsub("J", "נ")
+zhrf11 = zhrf11:gsub("k", "к")
+zhrf11 = zhrf11:gsub("K", "к")
+zhrf11 = zhrf11:gsub("l", "ℓ")
+zhrf11 = zhrf11:gsub("L", "ℓ")
+zhrf11 = zhrf11:gsub("z", "z")
+zhrf11 = zhrf11:gsub("Z", "z")
+zhrf11 = zhrf11:gsub("d", "∂")
+zhrf11 = zhrf11:gsub("D", "∂")
+zhrf11 = zhrf11:gsub("x", "x")
+zhrf11 = zhrf11:gsub("X", "x")
+zhrf11 = zhrf11:gsub("c", "c")
+zhrf11 = zhrf11:gsub("C", "c")
+zhrf11 = zhrf11:gsub("v", "v")
+zhrf11 = zhrf11:gsub("V", "v")
+zhrf11 = zhrf11:gsub("b", "в")
+zhrf11 = zhrf11:gsub("B", "в")
+zhrf11 = zhrf11:gsub("n", "η")
+zhrf11 = zhrf11:gsub("N", "η")
+zhrf11 = zhrf11:gsub("M", "м")
+zhrf11 = zhrf11:gsub("m", "м")
+zhrf11 = zhrf11:gsub('ض', 'ضُ͠')
+zhrf11 = zhrf11:gsub('ص', 'صّ͠')
+zhrf11 = zhrf11:gsub('ث', 'ثُ͠')
+zhrf11 = zhrf11:gsub('ق', 'ق͠')
+zhrf11 = zhrf11:gsub('ف', 'ف͠')
+zhrf11 = zhrf11:gsub('غ', 'غ͠')
+zhrf11 = zhrf11:gsub('ع', 'ع͠')
+zhrf11 = zhrf11:gsub('خ', 'ٌخ͠')
+zhrf11 = zhrf11:gsub('ح', 'حُ͠')
+zhrf11 = zhrf11:gsub('ج', 'جْ͠')
+zhrf11 = zhrf11:gsub('ش', 'شِ͠')
+zhrf11 = zhrf11:gsub('س', 'سِ͠')
+zhrf11 = zhrf11:gsub('ي', 'ي͠')
+zhrf11 = zhrf11:gsub('ب', 'بّ͠')
+zhrf11 = zhrf11:gsub('ل', 'ل͠')
+zhrf11 = zhrf11:gsub('ا', 'ا')
+zhrf11 = zhrf11:gsub('ت', 'تْ͠')
+zhrf11 = zhrf11:gsub('ن', 'ن͠')
+zhrf11 = zhrf11:gsub('م', 'م͠')
+zhrf11 = zhrf11:gsub('ك', 'گ͠')
+zhrf11 = zhrf11:gsub('طِ', 'ط͠')
+zhrf11 = zhrf11:gsub('ظ', 'ظٌ͠')
+zhrf11 = zhrf11:gsub('ء', '͠ء')
+zhrf11 = zhrf11:gsub('وَ', 'و͠')
+zhrf11 = zhrf11:gsub('ر', 'ر͠')
+zhrf11 = zhrf11:gsub('ى', '͠ى')
+zhrf11 = zhrf11:gsub('ز', 'ز͠')
+zhrf11 = zhrf11:gsub('ض','ض͠')
+zhrf11 = zhrf11:gsub('و', 'وَ͠')
+zhrf11 = zhrf11:gsub("ه", "ه͠")
+
+local zhrf12 = text:gsub('ا','آ')
+zhrf12 = zhrf12:gsub("ب","بّہ")
+zhrf12 = zhrf12:gsub("ت","تَہَٰ")
+zhrf12 = zhrf12:gsub("ح","حہٰٰ")
+zhrf12 = zhrf12:gsub("ج","جْۧ")
+zhrf12 = zhrf12:gsub("خ","خٰ̐ہ")
+zhrf12 = zhrf12:gsub("د","د")
+zhrf12 = zhrf12:gsub("ذ","ذِ")
+zhrf12 = zhrf12:gsub("ر","ر")
+zhrf12 = zhrf12:gsub("ز","زَ")
+zhrf12 = zhrf12:gsub("س","سٰٰٓ")
+zhrf12 = zhrf12:gsub("ش","شِٰہٰٰ")
+zhrf12 = zhrf12:gsub("ص","صۛہٰٰ")
+zhrf12 = zhrf12:gsub("ض","ضۜہٰٰ")
+zhrf12 = zhrf12:gsub("ظ","ظۗہٰٰ")
+zhrf12 = zhrf12:gsub("غ","غہٰٰ")
+zhrf12 = zhrf12:gsub("ف","ف͒ہٰٰ")
+zhrf12 = zhrf12:gsub("ق","قྀ̲ہٰٰٰ")
+zhrf12 = zhrf12:gsub("ك","ڪٰྀہٰٰٖ")
+zhrf12 = zhrf12:gsub("ل","ل")
+zhrf12 = zhrf12:gsub("ن","نَِٰہٰ")
+zhrf12 = zhrf12:gsub("ه","ھہ")
+zhrf12 = zhrf12:gsub("و","وِ")
+zhrf12 = zhrf12:gsub("طۨہٰٰ","ط")
+zhrf12 = zhrf12:gsub("ث","ثہٰٰ")
+zhrf12 = zhrf12:gsub("ي","يِٰہ")
+zhrf12 = zhrf12:gsub("ع","؏ۤـہٰٰ")
+zhrf12 = zhrf12:gsub('a', '۰۪۫A۪۫۰')
+zhrf12 = zhrf12:gsub('b', '۰۪۫B۪۫۰')
+zhrf12 = zhrf12:gsub('c', '۰۪۫C۪۫۰')
+zhrf12 = zhrf12:gsub('d', '۰۪۫D۪۫۰')
+zhrf12 = zhrf12:gsub('e', '۰۪۫E۪۫۰')
+zhrf12 = zhrf12:gsub('f', '۰۪۫F۪۫۰')
+zhrf12 = zhrf12:gsub('g', '۰۪۫G۪۫۰')
+zhrf12 = zhrf12:gsub('h', '۰۪۫H۪۫۰')
+zhrf12 = zhrf12:gsub('i', '۰۪۫I۪۫۰')
+zhrf12 = zhrf12:gsub('j', '۰۪۫J۪۫۰')
+zhrf12 = zhrf12:gsub('k', '۰۪۫K۪۫۰')
+zhrf12 = zhrf12:gsub('l', '۰۪۫L۪۫۰')
+zhrf12 = zhrf12:gsub('m', '۰۪۫M۪۫۰')
+zhrf12 = zhrf12:gsub('n', '۰۪۫N۪۫۰')
+zhrf12 = zhrf12:gsub('o', '۰۪۫O۪۫۰')
+zhrf12 = zhrf12:gsub('p', '۰۪۫P۪۫۰')
+zhrf12 = zhrf12:gsub('q', '۰۪۫Q۪۫۰')
+zhrf12 = zhrf12:gsub('r', '۰۪۫R۪۫۰')
+zhrf12 = zhrf12:gsub('s', '۰۪۫S۪۫۰')
+zhrf12 = zhrf12:gsub('t', '۰۪۫T۪۫۰')
+zhrf12 = zhrf12:gsub('u', '۰۪۫U۪۫۰')
+zhrf12 = zhrf12:gsub('v', '۰۪۫V۪۫۰')
+zhrf12 = zhrf12:gsub('w', '۰۪۫W۪۫۰')
+zhrf12 = zhrf12:gsub('x', '۰۪۫X۪۫۰')
+zhrf12 = zhrf12:gsub('y', '۰۪۫Y۪۫۰')
+zhrf12 = zhrf12:gsub('z', '۰۪۫Z۪۫۰')
+
+local zhrf13 = text:gsub('a', 'ᾋ')
+zhrf13 = zhrf13:gsub('b', 'ϐ')
+zhrf13 = zhrf13:gsub('c', 'Ƈ')
+zhrf13 = zhrf13:gsub('d', 'Ɖ')
+zhrf13 = zhrf13:gsub('e', 'Ἕ')
+zhrf13 = zhrf13:gsub('f', 'Ғ')
+zhrf13 = zhrf13:gsub('g', 'Ɠ')
+zhrf13 = zhrf13:gsub('h', 'Ἤ')
+zhrf13 = zhrf13:gsub('i', 'Ἷ')
+zhrf13 = zhrf13:gsub('j', 'Ј')
+zhrf13 = zhrf13:gsub('k', 'Ḱ')
+zhrf13 = zhrf13:gsub('l', 'Ŀ')
+zhrf13 = zhrf13:gsub('m', 'Ṃ')
+zhrf13 = zhrf13:gsub('n', 'Ɲ')
+zhrf13 = zhrf13:gsub('o', 'Ὃ')
+zhrf13 = zhrf13:gsub('p', 'Ƥ')
+zhrf13 = zhrf13:gsub('q', 'Q')
+zhrf13 = zhrf13:gsub('r', 'Ȓ')
+zhrf13 = zhrf13:gsub('s', 'Ṩ')
+zhrf13 = zhrf13:gsub('t', 'Ҭ')
+zhrf13 = zhrf13:gsub('u', 'Ȗ')
+zhrf13 = zhrf13:gsub('v', 'V')
+zhrf13 = zhrf13:gsub('w', 'Ẃ')
+zhrf13 = zhrf13:gsub('x', 'Ẋ')
+zhrf13 = zhrf13:gsub('y', 'Ὓ')
+zhrf13 = zhrf13:gsub('z', 'Ẕ')
+zhrf13 = zhrf13:gsub('ض', 'ضـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ص', 'ص͜ہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ث', 'ث͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ق', 'ق͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ف', 'ف͒͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('غ', 'غ͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ع', 'ع͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('خ', 'خ̐͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ح', 'ح͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ج', 'ج͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ش', 'ش͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('س', 'س͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ي', 'ي͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ب', 'ب͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ل', 'ل͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ا', 'ا')
+zhrf13 = zhrf13:gsub('ت', 'ت͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ن', 'ن͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('م', 'م͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ك', 'ڪ͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ط', 'ط͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ظ', 'ظ͜ـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('ء', 'ء')
+zhrf13 = zhrf13:gsub('ؤ', 'ؤ')
+zhrf13 = zhrf13:gsub('ر', 'ر')
+zhrf13 = zhrf13:gsub('ى', 'ى')
+zhrf13 = zhrf13:gsub('ز', 'ز')
+zhrf13 = zhrf13:gsub('ظ', 'ظـہۣۣۗۗ')
+zhrf13 = zhrf13:gsub('و', 'ﯛ̲୭')
+zhrf13 = zhrf13:gsub("ه", "ۿۿہ")
+
+local zhrf14 = text:gsub('ض', 'ضٰـہٰٖ')
+zhrf14 = zhrf14:gsub('ص', 'صٰـہٰٖ')
+zhrf14 = zhrf14:gsub('ث', 'ثٰـہٰٖ')
+zhrf14 = zhrf14:gsub('ق', 'قٰـہٰٖ')
+zhrf14 = zhrf14:gsub('ف', 'فٰـہٰٖ')
+zhrf14 = zhrf14:gsub('غ', 'غٰـہٰٖ')
+zhrf14 = zhrf14:gsub('خ', 'خٰـہٰٖ')
+zhrf14 = zhrf14:gsub('ح', 'حٰـہٰٖ')
+zhrf14 = zhrf14:gsub('ج', 'جٰـہٰٖ')
+zhrf14 = zhrf14:gsub('ش', 'شٰـہٰٖ')
+zhrf14 = zhrf14:gsub('س', 'سٰـہٰٖ')
+zhrf14 = zhrf14:gsub('ي', 'يٰـہٰٖ')
+zhrf14 = zhrf14:gsub('ب', 'بٰـہٰٖ')
+zhrf14 = zhrf14:gsub('ل', 'لـہٰٖ')
+zhrf14 = zhrf14:gsub('ا', 'ا')
+zhrf14 = zhrf14:gsub('ت', 'تٰـہٰٖ')
+zhrf14 = zhrf14:gsub('ن', 'نٰـہٰٖ')
+zhrf14 = zhrf14:gsub('م', 'مٰـہٰٖ')
+zhrf14 = zhrf14:gsub('ك', 'كٰـہٰٖ')
+zhrf14 = zhrf14:gsub('ط', 'طٰـہٰٖ')
+zhrf14 = zhrf14:gsub('ظ', 'ظٰـہٰٖ')
+zhrf14 = zhrf14:gsub('ء', 'ء')
+zhrf14 = zhrf14:gsub('ؤ', 'ؤ')
+zhrf14 = zhrf14:gsub('ر', 'ر')
+zhrf14 = zhrf14:gsub('ى', 'ى')
+zhrf14 = zhrf14:gsub('ز', 'ز')
+zhrf14 = zhrf14:gsub('و', 'ﯛ̲୭')
+zhrf14 = zhrf14:gsub("ه", "໋۠هہؚ")
+zhrf14 = zhrf14:gsub('a', 'ᴀ')
+zhrf14 = zhrf14:gsub('b', 'ʙ')
+zhrf14 = zhrf14:gsub('c', 'ᴄ')
+zhrf14 = zhrf14:gsub('d', 'ᴅ')
+zhrf14 = zhrf14:gsub('e', 'ᴇ')
+zhrf14 = zhrf14:gsub('f', 'ғ')
+zhrf14 = zhrf14:gsub('g', 'ɢ')
+zhrf14 = zhrf14:gsub('h', 'ʜ')
+zhrf14 = zhrf14:gsub('i', 'ɪ')
+zhrf14 = zhrf14:gsub('j', 'ᴊ')
+zhrf14 = zhrf14:gsub('k', 'ᴋ')
+zhrf14 = zhrf14:gsub('l', 'ʟ')
+zhrf14 = zhrf14:gsub('m', 'ᴍ')
+zhrf14 = zhrf14:gsub('n', 'ɴ')
+zhrf14 = zhrf14:gsub('o', 'ᴏ')
+zhrf14 = zhrf14:gsub('p', 'ᴘ')
+zhrf14 = zhrf14:gsub('q', 'ǫ')
+zhrf14 = zhrf14:gsub('r', 'ʀ')
+zhrf14 = zhrf14:gsub('s', 's')
+zhrf14 = zhrf14:gsub('t', 'ᴛ')
+zhrf14 = zhrf14:gsub('u', 'ᴜ')
+zhrf14 = zhrf14:gsub('v', 'ᴠ')
+zhrf14 = zhrf14:gsub('w', 'ᴡ')
+zhrf14 = zhrf14:gsub('x', 'x')
+zhrf14 = zhrf14:gsub('y', 'ʏ')
+zhrf14 = zhrf14:gsub('z', 'ᴢ')
+
+local zhrf15 = text:gsub('ض', 'ض͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ص', 'ص͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ث', 'ث͜ــ๋͜ـ͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ق', 'ق͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ف', 'ف͒͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('غ', 'غ͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ع', 'ع͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('خ', 'خ̐͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ح', 'ح͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ج', 'ج͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ش', 'ش͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('س', 'س͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ي', 'ي͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ب', 'ب͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ل', 'ل͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ا', 'ا')
+zhrf15 = zhrf15:gsub('ت', 'ت͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ن', 'ن͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('م', 'م͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ك', 'ڪ͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ط', 'ط͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ظ', 'ظ͜ــ๋͜ـ')
+zhrf15 = zhrf15:gsub('ء', 'ء')
+zhrf15 = zhrf15:gsub('ؤ', 'ؤ')
+zhrf15 = zhrf15:gsub('ر', 'ر')
+zhrf15 = zhrf15:gsub('ى', 'ى')
+zhrf15 = zhrf15:gsub('ز', 'ز')
+zhrf15 = zhrf15:gsub('ظ', 'ظــ๋͜ـ')
+zhrf15 = zhrf15:gsub('و', 'ﯛ̲୭')
+zhrf15 = zhrf15:gsub("ه", "ۿۿہ")
+zhrf15 = zhrf15:gsub('a', 'A꯭')
+zhrf15 = zhrf15:gsub('b', 'B꯭')
+zhrf15 = zhrf15:gsub('c', 'C꯭')
+zhrf15 = zhrf15:gsub('d', 'D꯭')
+zhrf15 = zhrf15:gsub('e', 'E꯭')
+zhrf15 = zhrf15:gsub('f', 'F꯭')
+zhrf15 = zhrf15:gsub('g', 'G꯭')
+zhrf15 = zhrf15:gsub('h', 'H꯭')
+zhrf15 = zhrf15:gsub('i', 'I꯭')
+zhrf15 = zhrf15:gsub('j', 'J꯭')
+zhrf15 = zhrf15:gsub('k', 'K꯭')
+zhrf15 = zhrf15:gsub('l', 'L꯭')
+zhrf15 = zhrf15:gsub('m', 'M꯭')
+zhrf15 = zhrf15:gsub('n', 'N꯭')
+zhrf15 = zhrf15:gsub('o', 'O꯭')
+zhrf15 = zhrf15:gsub('p', 'P꯭')
+zhrf15 = zhrf15:gsub('q', 'Q꯭')
+zhrf15 = zhrf15:gsub('r', 'R꯭')
+zhrf15 = zhrf15:gsub('s', 'S꯭')
+zhrf15 = zhrf15:gsub('t', 'T꯭')
+zhrf15 = zhrf15:gsub('u', 'U꯭')
+zhrf15 = zhrf15:gsub('v', 'V꯭')
+zhrf15 = zhrf15:gsub('w', 'W꯭')
+zhrf15 = zhrf15:gsub('x', 'X꯭')
+zhrf15 = zhrf15:gsub('y', 'Y꯭')
+zhrf15 = zhrf15:gsub('z', 'Z꯭')
+
+
+local zhrf16 = text:gsub("q", "ǫ")
+zhrf16 = zhrf16:gsub("w", "ω")
+zhrf16 = zhrf16:gsub("e", "૯")
+zhrf16 = zhrf16:gsub("r", "ʀ")
+zhrf16 = zhrf16:gsub("t", "τ")
+zhrf16 = zhrf16:gsub("y", "ყ")
+zhrf16 = zhrf16:gsub("u", "υ")
+zhrf16 = zhrf16:gsub("i", "เ")
+zhrf16 = zhrf16:gsub("o", "๏")
+zhrf16 = zhrf16:gsub("p", "ρ")
+zhrf16 = zhrf16:gsub("a", "Δ")
+zhrf16 = zhrf16:gsub("s", "ઽ")
+zhrf16 = zhrf16:gsub("d", "ᴅ")
+zhrf16 = zhrf16:gsub("f", "ƒ")
+zhrf16 = zhrf16:gsub("g", "ɢ")
+zhrf16 = zhrf16:gsub("h", "み")
+zhrf16 = zhrf16:gsub("j", "ʝ")
+zhrf16 = zhrf16:gsub("k", "ҡ")
+zhrf16 = zhrf16:gsub("l", "ɭ")
+zhrf16 = zhrf16:gsub("z", "ʑ")
+zhrf16 = zhrf16:gsub("x", "ﾒ")
+zhrf16 = zhrf16:gsub("c", "૮")
+zhrf16 = zhrf16:gsub("v", "ѵ")
+zhrf16 = zhrf16:gsub("b", "β")
+zhrf16 = zhrf16:gsub("n", "ท")
+zhrf16 = zhrf16:gsub("m", "ണ")
+zhrf16 = zhrf16:gsub('ض', 'ضِٰـِۢ')
+zhrf16 = zhrf16:gsub('ص', 'صِٰـِۢ')
+zhrf16 = zhrf16:gsub('ث', 'ثِٰـِۢ')
+zhrf16 = zhrf16:gsub('ق', 'قِٰـِۢ')
+zhrf16 = zhrf16:gsub('ف', 'فِٰ͒ـِۢ')
+zhrf16 = zhrf16:gsub('غ', 'غِٰـِۢ')
+zhrf16 = zhrf16:gsub('ع', 'عِٰـِۢ')
+zhrf16 = zhrf16:gsub('خ', 'خِٰ̐ـِۢ')
+zhrf16 = zhrf16:gsub('ح', 'حِٰـِۢ')
+zhrf16 = zhrf16:gsub('ج', 'جِٰـِۢ')
+zhrf16 = zhrf16:gsub('ش', 'شِٰـِۢ')
+zhrf16 = zhrf16:gsub('س', 'سِٰـِۢ')
+zhrf16 = zhrf16:gsub('ي', 'يِٰـِۢ')
+zhrf16 = zhrf16:gsub('ب', 'بِٰـِۢ')
+zhrf16 = zhrf16:gsub('ل', 'لِٰـِۢ')
+zhrf16 = zhrf16:gsub('ا', 'ا')
+zhrf16 = zhrf16:gsub('ت', 'تِٰـِۢ')
+zhrf16 = zhrf16:gsub('ن', 'نِٰـِۢ')
+zhrf16 = zhrf16:gsub('م', 'مِٰـِۢ')
+zhrf16 = zhrf16:gsub('ك', 'ڪِٰـِۢ')
+zhrf16 = zhrf16:gsub('ط', 'طِٰـِۢ')
+zhrf16 = zhrf16:gsub('ظ', 'ظِٰـِۢ')
+zhrf16 = zhrf16:gsub('ء', 'ء')
+zhrf16 = zhrf16:gsub('ؤ', 'ؤ')
+zhrf16 = zhrf16:gsub('ر', 'ر')
+zhrf16 = zhrf16:gsub('ى', 'ى')
+zhrf16 = zhrf16:gsub('ز', 'ز')
+zhrf16 = zhrf16:gsub('و', 'ﯛ̲୭')
+zhrf16 = zhrf16:gsub("ه", "ۿۿہ")
+
+local zhrf17 = text:gsub("q", "Ꮢ")
+zhrf17 = zhrf17:gsub("w", "ẁ́̀́")
+zhrf17 = zhrf17:gsub("e", "ξ")
+zhrf17 = zhrf17:gsub("r", "Ꮢ")
+zhrf17 = zhrf17:gsub("t", "Ƭ")
+zhrf17 = zhrf17:gsub("y", "ɣ")
+zhrf17 = zhrf17:gsub("u", "Ꮜ")
+zhrf17 = zhrf17:gsub("i", "Ĩ")
+zhrf17 = zhrf17:gsub("o", "♡")
+zhrf17 = zhrf17:gsub("p", "Ƥ")
+zhrf17 = zhrf17:gsub("a", "ᕱ")
+zhrf17 = zhrf17:gsub("s", "Ƨ")
+zhrf17 = zhrf17:gsub("d", "Ɗ")
+zhrf17 = zhrf17:gsub("f", "ƒ")
+zhrf17 = zhrf17:gsub("g", "Ǥ")
+zhrf17 = zhrf17:gsub("h", "ƕ")
+zhrf17 = zhrf17:gsub("j", "ʝ")
+zhrf17 = zhrf17:gsub("k", "Ƙ")
+zhrf17 = zhrf17:gsub("l", "Ꮭ")
+zhrf17 = zhrf17:gsub("z", "ʑ")
+zhrf17 = zhrf17:gsub("x", "ﾒ")
+zhrf17 = zhrf17:gsub("c", "૮")
+zhrf17 = zhrf17:gsub("v", "ѵ")
+zhrf17 = zhrf17:gsub("b", "β")
+zhrf17 = zhrf17:gsub("n", "ท")
+zhrf17 = zhrf17:gsub("m", "ണ")
+zhrf17 = zhrf17:gsub('ض', 'ضَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ص', 'صَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ث', 'ثَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ق', 'قَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ف', 'فَٰ͒ـُـٰٓ')
+zhrf17 = zhrf17:gsub('غ', 'غَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ع', 'عَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('خ', 'خَٰ̐ـُـٰٓ')
+zhrf17 = zhrf17:gsub('ح', 'حَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ج', 'جَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ش', 'شَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('س', 'سَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ي', 'يَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ب', 'بَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ل', 'لَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ا', 'ا')
+zhrf17 = zhrf17:gsub('ت', 'تَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ن', 'نَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('م', 'مَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ك', 'ڪَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ط', 'طَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ظ', 'ظَٰـُـٰٓ')
+zhrf17 = zhrf17:gsub('ء', 'ء')
+zhrf17 = zhrf17:gsub('ؤ', 'ؤ')
+zhrf17 = zhrf17:gsub('ر', 'ر')
+zhrf17 = zhrf17:gsub('ى', 'ى')
+zhrf17 = zhrf17:gsub('ز', 'ز')
+zhrf17 = zhrf17:gsub('و', 'ﯛ̲୭')
+zhrf17 = zhrf17:gsub("ه", "ۿۿہ")
+
+local zhrf18 = text:gsub("q", "℺")
+zhrf18 = zhrf18:gsub("w", "Ꮤ")
+zhrf18 = zhrf18:gsub("e", "Ｅ")
+zhrf18 = zhrf18:gsub("r", "Ꮢ")
+zhrf18 = zhrf18:gsub("t", "Ƭ")
+zhrf18 = zhrf18:gsub("y", "ɣ")
+zhrf18 = zhrf18:gsub("u", "ᵿ")
+zhrf18 = zhrf18:gsub("i", "Ｉ")
+zhrf18 = zhrf18:gsub("o", "σ")
+zhrf18 = zhrf18:gsub("p", "Ꝑ")
+zhrf18 = zhrf18:gsub("a", "ᗩ")
+zhrf18 = zhrf18:gsub("s", "₷")
+zhrf18 = zhrf18:gsub("d", "Ɗ")
+zhrf18 = zhrf18:gsub("f", "Բ")
+zhrf18 = zhrf18:gsub("g", "Ｇ")
+zhrf18 = zhrf18:gsub("h", "ⴼ")
+zhrf18 = zhrf18:gsub("j", "Ј")
+zhrf18 = zhrf18:gsub("k", "₭")
+zhrf18 = zhrf18:gsub("l", "Ł")
+zhrf18 = zhrf18:gsub("z", "Ꙃ")
+zhrf18 = zhrf18:gsub("x", "χ")
+zhrf18 = zhrf18:gsub("c", "Ｃ")
+zhrf18 = zhrf18:gsub("v", "ѵ")
+zhrf18 = zhrf18:gsub("b", "β")
+zhrf18 = zhrf18:gsub("n", "Ŋ")
+zhrf18 = zhrf18:gsub("m", "ᗰ")
+zhrf18 = zhrf18:gsub('ض', 'ضِٰــ')
+zhrf18 = zhrf18:gsub('ص', 'صِٰــ')
+zhrf18 = zhrf18:gsub('ث', 'ثِٰــ')
+zhrf18 = zhrf18:gsub('ق', 'قِٰــ')
+zhrf18 = zhrf18:gsub('ف', 'فِٰ͒ــ')
+zhrf18 = zhrf18:gsub('غ', 'غِٰــ')
+zhrf18 = zhrf18:gsub('ع', 'عِٰــ')
+zhrf18 = zhrf18:gsub('خ', 'خِٰ̐ــ')
+zhrf18 = zhrf18:gsub('ح', 'حِٰــ')
+zhrf18 = zhrf18:gsub('ج', 'جِٰــ')
+zhrf18 = zhrf18:gsub('ش', 'شِٰــ')
+zhrf18 = zhrf18:gsub('س', 'سِٰــ')
+zhrf18 = zhrf18:gsub('ي', 'يِٰــ')
+zhrf18 = zhrf18:gsub('ب', 'بِٰــ')
+zhrf18 = zhrf18:gsub('ل', 'لِٰــ')
+zhrf18 = zhrf18:gsub('ا', 'آ')
+zhrf18 = zhrf18:gsub('ت', 'تِٰــ')
+zhrf18 = zhrf18:gsub('ن', 'نِٰــ')
+zhrf18 = zhrf18:gsub('م', 'مِٰــ')
+zhrf18 = zhrf18:gsub('ك', 'ڪِٰــ')
+zhrf18 = zhrf18:gsub('ط', 'طِٰــ')
+zhrf18 = zhrf18:gsub('ظ', 'ظِٰــ')
+zhrf18 = zhrf18:gsub('ء', 'ء')
+zhrf18 = zhrf18:gsub('ؤ', 'ؤ')
+zhrf18 = zhrf18:gsub('ر', 'ر')
+zhrf18 = zhrf18:gsub('ى', 'ى')
+zhrf18 = zhrf18:gsub('ز', 'ز')
+zhrf18 = zhrf18:gsub('و', 'ﯛ̲୭')
+zhrf18 = zhrf18:gsub("ه", "໋۠هہؚ")
+local RANDROM={'•💚','🍿﴿','❥˓ ','💝﴿ֆ','🐼🌿','🙊💙','-✨','〄💖‘','⚡️💊','-⁽🌷','🔥“','💜💭','','🎩','“̯🐼💗','🍷','❥̚͢₎😍','🌸‘','💭💔ۦ','💛💭ۦ','⚡️🔱ۦ','℡ᴖ̈💜','🌔☄️₎ۦ˛','💥♩','☻🔥“ٰۦ','℡̇✨🐯⇣✦','⁞♩⁽💎🌩₎⇣✿','ۦٰ‏┋❥͢˓🦁💛ۦ‏','⚡️♛ֆ₎','♛⇣🐰☄️₎✦','⁾⇣✿┊❥','₎✿💥🎃⁞“❥','😴✿⇣','❥┊⁽℡🦁🌸'}
+local TEXTSHER = '\n*📮¦ اهلا بك عزيزي المستخدم\n🗃¦ اضغط على الاسم ليتم نسخه *\nٴ━━━━━━━━━━\n'
+local TEXT_end = '*\nٴ━━━━━━━━━━\n📌¦ مطور البوت* ❪[@IM_KI]❫'
+local SEND_SKRF = TEXTSHER..'*1 »* `'..zhrf1..' '..RANDROM[math.random(#RANDROM)]..'`\n*2 »* `'..zhrf2..' '..RANDROM[math.random(#RANDROM)]..'`\n*3 »* `'..zhrf3..' '..RANDROM[math.random(#RANDROM)]..'`\n*4 »* `'..zhrf4..' '..RANDROM[math.random(#RANDROM)]..'`\n*5 »* `'..zhrf5..' '..RANDROM[math.random(#RANDROM)]..'`\n*6 »* `'..zhrf6..' '..RANDROM[math.random(#RANDROM)]..'`\n*7 »* `'..zhrf7..' '..RANDROM[math.random(#RANDROM)]..'`\n*8 »* `'..zhrf8..' '..RANDROM[math.random(#RANDROM)]..'`\n*9 »* `'..zhrf9..' '..RANDROM[math.random(#RANDROM)]..'`\n*10 »* `'..zhrf10..' '..RANDROM[math.random(#RANDROM)]..'`\n*11 »* `'..zhrf11..' '..RANDROM[math.random(#RANDROM)]..'`\n*12 »* `'..zhrf12..' '..RANDROM[math.random(#RANDROM)]..'`\n*13 »* `'..zhrf13..' '..RANDROM[math.random(#RANDROM)]..'`\n*14 »* `'..zhrf14..' '..RANDROM[math.random(#RANDROM)]..'`\n*15 »* `'..zhrf15..' '..RANDROM[math.random(#RANDROM)]..'`\n*16 »* `'..zhrf16..' '..RANDROM[math.random(#RANDROM)]..'`\n*17 »* `'..zhrf17..' '..RANDROM[math.random(#RANDROM)]..'`\n*18 »* `'..zhrf18..' '..RANDROM[math.random(#RANDROM)]..'`'..TEXT_end
+send(msg.chat_id_, msg.id_,SEND_SKRF)
+database:del(bot_id.."Tshak:skrafa:name" .. msg.chat_id_ .. "" .. msg.sender_user_id_)     
+end
+end
+
+if text == 'تفعيل الزخرفه' and Addictive(msg) then   
+if database:get(bot_id..'Tshake:lock:skrfa'..msg.chat_id_)  then
+send( msg.chat_id_, msg.id_, '📮¦تم تفعيل الزخرفه, ارسل زخرفه' ) 
+database:del(bot_id..'Tshake:lock:skrfa'..msg.chat_id_) 
+else
+send( msg.chat_id_, msg.id_, '📮¦بالتاكيد تم تفعيل الزخرفه') 
+end
+return false
+end
+if text == "تعطيل الزخرفه" and Addictive(msg) then   
+if not database:get(bot_id..'Tshake:lock:skrfa'..msg.chat_id_)  then
+send( msg.chat_id_, msg.id_,'📮¦تم تعطيل الزخرفه') 
+database:set(bot_id..'Tshake:lock:skrfa'..msg.chat_id_,true) 
+else
+send( msg.chat_id_, msg.id_,'📮¦بالتاكيد تم تعطيل الزخرفه' ) 
+end
+return false
+end
+if text == ("زخرفه") or text == ("زخرف") then
+if not database:get(bot_id.."Tshake:lock:skrfa"..msg.chat_id_) then   
+database:setex(bot_id.."Tshak:skrafa:name" .. msg.chat_id_ .. "" .. msg.sender_user_id_, 10000, true)   
+send(msg.chat_id_, msg.id_, '*⚡¦* ارسل الاسم الذي تريد زخرفته \n*📬¦* سواء كان بالعربي او بالانكلش 🍁') 
+else
+send(msg.chat_id_, msg.id_,'📬¦الزخرفه معطله') 
+end
+return false
+end
+
+
+
+
+
 if text == ""..(database:get(bot_id.."Tshak:Set:Amth"..msg.chat_id_) or "").."" then 
 if not database:get(bot_id.."Tshak:Set:Amth:Bot"..msg.chat_id_) then 
 database:del(bot_id.."Tshak:Set:Amth"..msg.chat_id_)
@@ -5389,7 +7032,7 @@ local Num = database:get(bot_id.."Tshak:Add:Num"..msg.chat_id_..msg.sender_user_
 if Num == 0 then 
 Text = "📫┇لم تلعب اي لعبه للحصول على جواهر"
 else
-Text = "📮┇عدد جواهر التي رحبتها هي *~ { "..Num.." } مجوهره *"
+Text = "📮┇عدد الجواهر التي ربحتها هي  *~ { "..Num.." } مجوهرة *"
 end
 send(msg.chat_id_, msg.id_,Text) 
 end
@@ -5588,6 +7231,7 @@ local list = database:smembers(bot_id..'Tshake:Chek:Groups')
 local t = '{"BOT_ID": '..bot_id..',"GP_BOT":{'  
 for k,v in pairs(list) do   
 NAME = 'Tshake Chat'
+AGCCC = database:smembers(bot_id.."Tshake:Group:Creactor"..v)
 ASAS = database:smembers(bot_id.."Tshake:Basic:Constructor"..v)
 MNSH = database:smembers(bot_id.."Tshake:Constructor"..v)
 MDER = database:smembers(bot_id.."Tshake:Manager"..v)
@@ -5597,6 +7241,17 @@ if k == 1 then
 t = t..'"'..v..'":{"Tshake":"'..NAME..'",'
 else
 t = t..',"'..v..'":{"Tshake":"'..NAME..'",'
+end
+if #AGCCC ~= 0 then 
+t = t..'"AGCCC":['
+for k,v in pairs(AGCCC) do
+if k == 1 then
+t =  t..'"'..v..'"'
+else
+t =  t..',"'..v..'"'
+end
+end   
+t = t..'],'
 end
 if #ASAS ~= 0 then 
 t = t..'"ASAS":['
@@ -5909,6 +7564,7 @@ Text = [[
 📃┇القوانين
 👋🏻┇الترحيب
 👋🏻┇تفعيل/تعطيل الترحيب
+🍁┇تفعيل/تعطيل الزخرفه
 ⚠️┇اضف /مسح صلاحيه 
 ⚠️┇وضع تكرار + العدد
 💭┇ايدي
@@ -5956,8 +7612,6 @@ Text = [[
 💬┇تفعيل/تعطيل اللعبه/الالعاب
 💬┇تفعيل/تعطيل ردود المدير
 💬┇تفعيل/تعطيل اطردني
-💬┇تفعيل/تعطيل الرفع
-💬┇تفعيل/تعطيل الحظر/الطرد
 💬┇تفعيل/تعطيل الرابط/جلب الرابط
 💬┇تفعيل/تعطيل اوامر التحشيش
 ♨️┇تعين/مسح الايدي
@@ -5990,6 +7644,8 @@ Text = [[
 ↕️┇المنشئين
 🗑┇مسح المنشئين
 🏅┇اوامر المنشئين
+💬┇تفعيل/تعطيل الرفع
+💬┇تفعيل/تعطيل الحظر/الطرد
 ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉ ┉
 ↕️┇رفع/تنزيل مدير
 ↕️┇المدراء
@@ -6149,7 +7805,7 @@ end
 tdcli_function ({ID = "GetMessage",chat_id_ = msg.chat_id_,message_id_ = tonumber(msg.reply_to_message_id_)}, Function_Tshake, nil)
 return false
 end
-if text == 'تعطيل' and DevBot(msg) then 
+if text == 'تعطيل' and GroupCreactor(msg) then 
 
 tdcli_function ({ID = "GetUser",user_id_ = msg.sender_user_id_},function(extra,result,success)
 tdcli_function({ID ="GetChat",chat_id_=msg.chat_id_},function(arg,chat)  
@@ -6213,8 +7869,12 @@ send(msg.chat_id_, msg.id_,'👥┇عدد اعضاء المجموعه اقل م�
 return false
 end
 Reply_Status(msg,result.id_,'reply_Add','☑┇تم تفعيل المجموعه ~ '..chat.title_..'')
-database:sadd(bot_id..'Tshake:Chek:Groups',msg.chat_id_)  
+database:sadd(bot_id..'Tshake:Chek:Groups',msg.chat_id_) 
+if da.status_.ID == "ChatMemberStatusCreator" then
+database:sadd(bot_id..'Tshake:Group:Creactor'..msg.chat_id_, msg.sender_user_id_)
+else 
 database:sadd(bot_id..'Tshake:Basic:Constructor'..msg.chat_id_, msg.sender_user_id_)
+end
 local Name = '['..result.first_name_..'](tg://user?id='..result.id_..')'
 local NumMember = data.member_count_
 local NameChat = chat.title_
@@ -6556,6 +8216,7 @@ local list = database:smembers(bot_id..'Tshake:Chek:Groups')
 local t = '{"BOT_ID": '..bot_id..',"GP_BOT":{'  
 for k,v in pairs(list) do   
 NAME = 'Tshake Chat'
+AGCCC = database:smembers(bot_id.."Tshake:Group:Creactor"..v)
 ASAS = database:smembers(bot_id.."Tshake:Basic:Constructor"..v)
 MNSH = database:smembers(bot_id.."Tshake:Constructor"..v)
 MDER = database:smembers(bot_id.."Tshake:Manager"..v)
@@ -6565,6 +8226,17 @@ if k == 1 then
 t = t..'"'..v..'":{"Tshake":"'..NAME..'",'
 else
 t = t..',"'..v..'":{"Tshake":"'..NAME..'",'
+end
+if #AGCCC ~= 0 then 
+t = t..'"AGCCC":['
+for k,v in pairs(AGCCC) do
+if k == 1 then
+t =  t..'"'..v..'"'
+else
+t =  t..',"'..v..'"'
+end
+end   
+t = t..'],'
 end
 if #ASAS ~= 0 then 
 t = t..'"ASAS":['
