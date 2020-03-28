@@ -5107,6 +5107,7 @@ local Text= [[
 - `#game` > المجوهرات
 - `#AddMem` > عدد الجهات
 - `#Description` > تعليق الصوره
+- `#Activeprec` > نسبة التفاعل
 ]]
 send(msg.chat_id_, msg.id_,Text)
 return false  
@@ -5176,6 +5177,7 @@ local get_id = get_id:gsub('#auto',TotalMsg)
 local get_id = get_id:gsub('#Description',Description) 
 local get_id = get_id:gsub('#game',Num_Games) 
 local get_id = get_id:gsub('#photos',Total_Photp) 
+local get_id = get_id:gsub('#Activeprec',Activeprec)
 sendPhoto(msg.chat_id_,msg.id_,taha.photos_[0].sizes_[1].photo_.persistent_id_,get_id)
 else
 sendPhoto(msg.chat_id_,msg.id_,taha.photos_[0].sizes_[1].photo_.persistent_id_,'📸┇'..Description..'\n💳┇ايديك ~⪼ '..Id..'\n🎫┇معرفك ~⪼ '..UserName_User..'\n👨‍✈️┇رتبتك ~⪼ '..Status_Gps..'\n📨┇رسائلك ~⪼ '..NumMsg..'\n📧┇السحكات ~⪼ '..message_edit..' \n⌨️┇تتفاعلك ~⪼ '..TotalMsg..'\n📮┇ نسبـة تفاعلك ~⪼  '..string.sub(nupmsgg, 1,5)..'%\n💎┇ مجوهراتك ~⪼ '..Num_Games)
@@ -5194,7 +5196,8 @@ local get_id = get_id:gsub('#stast',Status_Gps)
 local get_id = get_id:gsub('#auto',TotalMsg) 
 local get_id = get_id:gsub('#Description',Description) 
 local get_id = get_id:gsub('#game',Num_Games) 
-local get_id = get_id:gsub('#photos',Total_Photp) 
+local get_id = get_id:gsub('#photos',Total_Photp)
+local get_id = get_id:gsub('#Activeprec',Activeprec) 
 send(msg.chat_id_, msg.id_,'['..get_id..']') 
 else
 send(msg.chat_id_, msg.id_,'\n*💳┇ايديك ~⪼ '..Id..'\n🎫┇معرفك ~⪼* ['..UserName_User..']*\n👨‍✈️┇رتبتك ~⪼ '..Status_Gps..'\n📨┇رسائلك ~⪼ '..NumMsg..'\n📧┇السحكات ~⪼ '..message_edit..' \n⌨️┇تتفاعلك ~⪼ '..TotalMsg..'\n📮┇ نسبـة تفاعلك ~⪼  '..string.sub(nupmsgg, 1,5)..'%\n💎┇ مجوهراتك ~⪼ '..Num_Games..'*') 
